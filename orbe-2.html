@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orbe de Partículas</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#05050f;--panel:rgba(7,8,22,0.97);--border:rgba(255,255,255,0.055);
+  --accent:#6c63ff;--text:#b0bcd8;--dim:#2e3a58;
+}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Inter',sans-serif;font-weight:300;
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:flex-start;
+  overflow-x:hidden;padding:22px 0 36px;gap:0;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    radial-gradient(1px 1px at 7% 12%,rgba(255,255,255,.5) 0%,transparent 100%),
+    radial-gradient(1px 1px at 23% 66%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 45% 9%,rgba(255,255,255,.55) 0%,transparent 100%),
+    radial-gradient(1px 1px at 61% 80%,rgba(255,255,255,.35) 0%,transparent 100%),
+    radial-gradient(1px 1px at 82% 33%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 91% 58%,rgba(255,255,255,.45) 0%,transparent 100%),
+    radial-gradient(1px 1px at 34% 91%,rgba(255,255,255,.3) 0%,transparent 100%),
+    radial-gradient(1px 1px at 13% 45%,rgba(255,255,255,.25) 0%,transparent 100%),
+    radial-gradient(1px 1px at 73% 20%,rgba(255,255,255,.4) 0%,transparent 100%),
+    radial-gradient(1px 1px at 54% 54%,rgba(255,255,255,.2) 0%,transparent 100%);
+}
+h1{
+  font-family:'Syne',sans-serif;font-weight:800;
+  font-size:clamp(.9rem,2.6vw,1.5rem);letter-spacing:.4em;
+  text-transform:uppercase;color:rgba(255,255,255,.82);
+  margin-bottom:1.4rem;position:relative;z-index:1;
+}
+.stage{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;}
+canvas{display:block;}
+
+/* PANEL */
+.panel{
+  background:var(--panel);border:1px solid var(--border);
+  border-radius:20px;padding:1.25rem 1.45rem;
+  margin-top:1.6rem;width:min(95vw,640px);
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:.9rem 1.8rem;position:relative;z-index:1;
+  backdrop-filter:blur(20px);
+}
+.panel-full{grid-column:1/-1;}
+label{
+  display:block;font-family:'Syne',sans-serif;
+  font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--dim);margin-bottom:.36rem;
+}
+.seg{display:flex;flex-wrap:wrap;gap:.28rem;}
+.seg button{
+  background:rgba(255,255,255,.03);border:1px solid var(--border);
+  border-radius:7px;color:var(--dim);
+  font-family:'Syne',sans-serif;font-size:.68rem;letter-spacing:.05em;
+  padding:.28rem .6rem;cursor:pointer;transition:all .16s;
+}
+.seg button:hover{border-color:var(--accent);color:var(--accent);}
+.seg button.active{
+  background:color-mix(in srgb,var(--accent) 15%,transparent);
+  border-color:var(--accent);color:var(--accent);
+  box-shadow:0 0 10px color-mix(in srgb,var(--accent) 22%,transparent);
+}
+input[type=range]{
+  -webkit-appearance:none;width:100%;height:2px;
+  border-radius:2px;background:rgba(255,255,255,.08);outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:11px;height:11px;border-radius:50%;
+  background:var(--accent);box-shadow:0 0 7px var(--accent);transition:transform .14s;
+}
+input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.35);}
+.sv{font-size:.68rem;color:var(--accent);float:right;font-family:'Syne',sans-serif;}
+.swatches{display:flex;gap:.4rem;flex-wrap:wrap;}
+.swatch{
+  width:22px;height:22px;border-radius:50%;border:2px solid transparent;
+  cursor:pointer;transition:transform .16s,border-color .16s;
+}
+.swatch:hover,.swatch.active{transform:scale(1.28);border-color:rgba(255,255,255,.75);}
+.crow{display:flex;gap:.45rem;align-items:center;}
+.crow input[type=color]{width:26px;height:26px;border:none;border-radius:50%;cursor:pointer;background:none;padding:0;}
+.crow span{font-size:.62rem;color:var(--dim);}
+.divider{grid-column:1/-1;height:1px;background:var(--border);margin:.05rem 0;}
+</style>
+</head>
+<body>
+<h1>Orbe de Partículas</h1>
+<div class="stage"><canvas id="c"></canvas></div>
+
+<div class="panel">
+  <div class="panel-full">
+    <label>Modelo</label>
+    <div class="seg" id="modelSeg">
+      <!-- original 6 -->
+      <button data-model="nebula"      class="active">☁ Nebulosa</button>
+      <button data-model="sphere">⬤ Esfera</button>
+      <button data-model="ring">◎ Anillo</button>
+      <button data-model="galaxy">✦ Galaxia</button>
+      <button data-model="vortex">⟳ Vórtex</button>
+      <button data-model="dna">⌇ DNA</button>
+      <!-- geométricas -->
+      <button data-model="icosahedron">⬡ Icosaedro</button>
+      <button data-model="octahedron">◈ Octaedro</button>
+      <button data-model="dodecahedron">⬠ Dodecaedro</button>
+      <button data-model="pyramid">▲ Pirámide</button>
+      <!-- fluidos -->
+      <button data-model="wave">🌊 Ola</button>
+      <button data-model="drop">💧 Gota</button>
+      <button data-model="bubbles">🫧 Burbujas</button>
+      <button data-model="snail">🌀 Caracol</button>
+      <!-- astrofísica -->
+      <button data-model="blackhole">🌌 Ag. Negro</button>
+      <button data-model="comet">☄ Cometa</button>
+      <button data-model="planet">🪐 Planeta</button>
+      <button data-model="supernova">✨ Supernova</button>
+      <!-- matemáticas -->
+      <button data-model="klein">∞ Klein</button>
+      <button data-model="lemniscate">〜 Lemniscata</button>
+      <button data-model="rose">❋ Rosa 3D</button>
+      <button data-model="trefoil">📐 Trefoil</button>
+      <!-- dinámicas -->
+      <button data-model="atom">⚛ Átomo</button>
+      <button data-model="neural">🕸 Neuronal</button>
+      <button data-model="tornado">🌪 Tornado</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="panel-full">
+    <label>Zodíaco</label>
+    <div class="seg" id="zodSeg">
+      <button data-model="aries">♈ Aries</button>
+      <button data-model="taurus">♉ Tauro</button>
+      <button data-model="gemini">♊ Géminis</button>
+      <button data-model="cancer">♋ Cáncer</button>
+      <button data-model="leo">♌ Leo</button>
+      <button data-model="virgo">♍ Virgo</button>
+      <button data-model="libra">♎ Libra</button>
+      <button data-model="scorpio">♏ Escorpio</button>
+      <button data-model="sagittarius">♐ Sagitario</button>
+      <button data-model="capricorn">♑ Capricornio</button>
+      <button data-model="aquarius">♒ Acuario</button>
+      <button data-model="pisces">♓ Piscis</button>
+    </div>
+  </div>
+
+  <div class="panel-full">
+    <label>Icónicas</label>
+    <div class="seg" id="iconSeg">
+      <button data-model="orion">⭐ Orión</button>
+      <button data-model="ursamajor">🐻 Osa Mayor</button>
+      <button data-model="ursaminor">🐾 Osa Menor</button>
+      <button data-model="crux">✚ Cruz del Sur</button>
+      <button data-model="cassiopeia">Ш Casiopea</button>
+      <button data-model="andromeda">🌌 Andrómeda</button>
+      <button data-model="pegasus">🐴 Pegaso</button>
+      <button data-model="hercules">💪 Hércules</button>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="panel-full">
+    <label>Paleta</label>
+    <div class="swatches" id="swatches">
+      <div class="swatch active" data-ca="#6c63ff" data-cb="#a855f7" data-cc="#06b6d4" style="background:linear-gradient(135deg,#6c63ff,#a855f7,#06b6d4)" title="Cosmos"></div>
+      <div class="swatch" data-ca="#00cfff" data-cb="#0066ff" data-cc="#7b2fff" style="background:linear-gradient(135deg,#00cfff,#0066ff,#7b2fff)" title="Nebulosa"></div>
+      <div class="swatch" data-ca="#ff2fa0" data-cb="#7b2fff" data-cc="#00cfff" style="background:linear-gradient(135deg,#ff2fa0,#7b2fff,#00cfff)" title="Aurora"></div>
+      <div class="swatch" data-ca="#ff6b00" data-cb="#ff0050" data-cc="#ffe200" style="background:linear-gradient(135deg,#ff6b00,#ff0050,#ffe200)" title="Lava"></div>
+      <div class="swatch" data-ca="#39ff14" data-cb="#00ff88" data-cc="#00e5ff" style="background:linear-gradient(135deg,#39ff14,#00ff88,#00e5ff)" title="Matrix"></div>
+      <div class="swatch" data-ca="#ffd700" data-cb="#ff8c00" data-cc="#ff4500" style="background:linear-gradient(135deg,#ffd700,#ff8c00,#ff4500)" title="Solar"></div>
+      <div class="swatch" data-ca="#ffffff" data-cb="#c0d8ff" data-cc="#80a0ff" style="background:linear-gradient(135deg,#fff,#c0d8ff,#80a0ff)" title="Glaciar"></div>
+      <div class="swatch" data-ca="#ff1493" data-cb="#ff69b4" data-cc="#ff00ff" style="background:linear-gradient(135deg,#ff1493,#ff69b4,#ff00ff)" title="Sakura"></div>
+      <div class="swatch" data-ca="#00ff88" data-cb="#00ccff" data-cc="#aa00ff" style="background:linear-gradient(135deg,#00ff88,#00ccff,#aa00ff)" title="Neon"></div>
+      <div class="swatch" data-ca="#ff4400" data-cb="#ff9900" data-cc="#ffee00" style="background:linear-gradient(135deg,#ff4400,#ff9900,#ffee00)" title="Fuego"></div>
+    </div>
+  </div>
+
+  <div>
+    <label>Color A</label>
+    <div class="crow"><input type="color" id="ca" value="#6c63ff"><span>Principal</span></div>
+  </div>
+  <div>
+    <label>Color B</label>
+    <div class="crow"><input type="color" id="cb" value="#a855f7"><span>Medio</span></div>
+  </div>
+  <div>
+    <label>Color C</label>
+    <div class="crow"><input type="color" id="cc" value="#06b6d4"><span>Acento</span></div>
+  </div>
+  <div>
+    <label>Tamaño punto <span class="sv" id="dotV">2.0</span></label>
+    <input type="range" id="dotR" min="0.4" max="6" step="0.1" value="2.0">
+  </div>
+
+  <div class="divider"></div>
+
+  <div>
+    <label>Partículas <span class="sv" id="cntV">2500</span></label>
+    <input type="range" id="cntR" min="200" max="6000" step="100" value="2500">
+  </div>
+  <div>
+    <label>Velocidad <span class="sv" id="spdV">1.0×</span></label>
+    <input type="range" id="spdR" min="0.05" max="5" step="0.05" value="1">
+  </div>
+  <div>
+    <label>Radio <span class="sv" id="radV">120</span></label>
+    <input type="range" id="radR" min="60" max="155" value="120">
+  </div>
+  <div>
+    <label>Difusión <span class="sv" id="fuzzV">0.28</span></label>
+    <input type="range" id="fuzzR" min="0" max="1" step="0.01" value="0.28">
+  </div>
+  <div>
+    <label>Glow <span class="sv" id="glwV">22</span></label>
+    <input type="range" id="glwR" min="0" max="65" value="22">
+  </div>
+  <div>
+    <label>Opacidad <span class="sv" id="opV">0.85</span></label>
+    <input type="range" id="opR" min="0.1" max="1" step="0.01" value="0.85">
+  </div>
+</div>
+
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+const $ = id => document.getElementById(id);
+const DPR = Math.min(window.devicePixelRatio||1, 2);
+
+const cfg = {
+  model:'nebula', ca:[108,99,255], cb:[168,85,247], cc:[6,182,212],
+  dot:2.0, count:2500, speed:1.0, radius:120, fuzz:0.28, glow:22, opacity:0.85
+};
+
+let pts = [], angle = 0, time = 0, raf;
+
+// ── Canvas ──
+function setupCanvas() {
+  const S = (cfg.radius + 62) * 2;
+  canvas.width  = S * DPR;
+  canvas.height = S * DPR;
+  canvas.style.width  = S + 'px';
+  canvas.style.height = S + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+}
+
+// ── Utils ──
+function hexRgb(h) { return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+function ptColor(t, a) {
+  let r,g,b;
+  if (t < .5) { const s=t*2; r=cfg.ca[0]*(1-s)+cfg.cb[0]*s; g=cfg.ca[1]*(1-s)+cfg.cb[1]*s; b=cfg.ca[2]*(1-s)+cfg.cb[2]*s; }
+  else        { const s=(t-.5)*2; r=cfg.cb[0]*(1-s)+cfg.cc[0]*s; g=cfg.cb[1]*(1-s)+cfg.cc[1]*s; b=cfg.cb[2]*(1-s)+cfg.cc[2]*s; }
+  return `rgba(${r|0},${g|0},${b|0},${Math.min(1,Math.max(0,a)).toFixed(3)})`;
+}
+function rnd() { return Math.random(); }
+function rndN() { return (rnd()+rnd()+rnd()-1.5)*2; } // approx normal
+
+// pt: [x,y,z, phase, driftAmp, tc, wSpd, extra...]
+function pt(x,y,z,tc) {
+  return [x,y,z, rnd()*Math.PI*2, cfg.radius*.035*(rnd()*.8+.2), tc, .4+rnd()*.6];
+}
+
+// ── GENERATORS ──
+function genNebula(n,R) {
+  const phi=Math.PI*(3-Math.sqrt(5)), out=[];
+  for(let i=0;i<n;i++){
+    const yi=1-(i/(n-1))*2, ri=Math.sqrt(Math.max(0,1-yi*yi)), th=phi*i;
+    const f=1+(rnd()-.5)*2*cfg.fuzz;
+    out.push(pt(ri*Math.cos(th)*R*f, yi*R*f, ri*Math.sin(th)*R*f, yi*.5+.5));
+  }
+  return out;
+}
+
+function genSphere(n,R) {
+  const phi=Math.PI*(3-Math.sqrt(5)), out=[];
+  for(let i=0;i<n;i++){
+    const yi=1-(i/(n-1))*2, ri=Math.sqrt(Math.max(0,1-yi*yi)), th=phi*i;
+    out.push(pt(ri*Math.cos(th)*R, yi*R, ri*Math.sin(th)*R, yi*.5+.5));
+  }
+  return out;
+}
+
+function genRing(n,R) {
+  const out=[], mR=R*.72, tR=R*.22;
+  for(let i=0;i<n;i++){
+    const u=(i/n)*Math.PI*2, v=rnd()*Math.PI*2, f=1+(rnd()-.5)*cfg.fuzz*.5;
+    out.push(pt((mR+tR*Math.cos(v)*f)*Math.cos(u), tR*Math.sin(v)*f, (mR+tR*Math.cos(v)*f)*Math.sin(u), Math.cos(v)*.5+.5));
+  }
+  return out;
+}
+
+function genGalaxy(n,R) {
+  const out=[], arms=3;
+  for(let i=0;i<n;i++){
+    const arm=(i%arms)*(Math.PI*2/arms), t=Math.pow(rnd(),.6);
+    const a=arm+t*Math.PI*3.5+(rnd()-.5)*.9, r=t*R*(1+(rnd()-.5)*cfg.fuzz*.5);
+    out.push(pt(Math.cos(a)*r, (rnd()-.5)*R*.14*(1-t), Math.sin(a)*r, t));
+  }
+  return out;
+}
+
+function genVortex(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const t=i/n, a=t*Math.PI*2*5, r=t*R*(1+(rnd()-.5)*cfg.fuzz);
+    out.push(pt(Math.cos(a)*r*(rnd()*.3+.85), (1-t*2)*R*.9+(rnd()-.5)*R*.08, Math.sin(a)*r*(rnd()*.3+.85), t));
+  }
+  return out;
+}
+
+function genDNA(n,R) {
+  const out=[], h=R*1.7, hR=R*.4;
+  for(let i=0;i<n;i++){
+    const t=i/n, y=(t-.5)*h, a=t*Math.PI*9, type=i%4;
+    let x,z;
+    if(type<2){ const s=type===0?0:Math.PI, f=1+(rnd()-.5)*cfg.fuzz*.5; x=Math.cos(a+s)*hR*f; z=Math.sin(a+s)*hR*f; }
+    else { const l=.15+rnd()*.7; x=Math.cos(a)*hR*(1-l)+Math.cos(a+Math.PI)*hR*l; z=Math.sin(a)*hR*(1-l)+Math.sin(a+Math.PI)*hR*l; }
+    out.push(pt(x, y, z, t));
+  }
+  return out;
+}
+
+// ── GEOMÉTRICAS ──
+function sampleFace(v0,v1,v2,n,R) {
+  const pts=[];
+  for(let i=0;i<n;i++){
+    let a=rnd(),b=rnd(); if(a+b>1){a=1-a;b=1-b;}
+    const c=1-a-b, f=1+(rnd()-.5)*cfg.fuzz*.3;
+    pts.push([
+      (v0[0]*a+v1[0]*b+v2[0]*c)*R*f,
+      (v0[1]*a+v1[1]*b+v2[1]*c)*R*f,
+      (v0[2]*a+v1[2]*b+v2[2]*c)*R*f,
+      rnd()*Math.PI*2, R*.02, a, .4+rnd()*.6
+    ]);
+  }
+  return pts;
+}
+
+function genIcosahedron(n,R) {
+  const t=(1+Math.sqrt(5))/2, s=1/Math.sqrt(1+t*t);
+  const v=[ [-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],[0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1] ].map(p=>p.map(x=>x*s));
+  const faces=[[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],[3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
+  const out=[], perFace=Math.ceil(n/faces.length);
+  faces.forEach(([a,b,c])=>out.push(...sampleFace(v[a],v[b],v[c],perFace,R)));
+  return out.slice(0,n);
+}
+
+function genOctahedron(n,R) {
+  const v=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
+  const faces=[[0,2,4],[0,4,3],[0,3,5],[0,5,2],[1,4,2],[1,3,4],[1,5,3],[1,2,5]];
+  const out=[], perFace=Math.ceil(n/faces.length);
+  faces.forEach(([a,b,c])=>out.push(...sampleFace(v[a],v[b],v[c],perFace,R)));
+  return out.slice(0,n);
+}
+
+function genDodecahedron(n,R) {
+  const phi=(1+Math.sqrt(5))/2;
+  const v=[];
+  [1,-1].forEach(s1=>[1,-1].forEach(s2=>[1,-1].forEach(s3=>v.push([s1,s2,s3]))));
+  [0,1,2].forEach(ax=>[1,-1].forEach(s1=>[1,-1].forEach(s2=>{
+    const p=[0,0,0]; p[ax]=s1*(phi+1)/phi; p[(ax+1)%3]=s2/phi; p[(ax+2)%3]=0;
+    v.push(p);
+  })));
+  // sample random triangles from center to each vertex
+  const out=[];
+  for(let i=0;i<n;i++){
+    const vi=v[Math.floor(rnd()*v.length)];
+    const vj=v[Math.floor(rnd()*v.length)];
+    const lp=rnd(), f=1+(rnd()-.5)*cfg.fuzz*.3;
+    const norm=Math.sqrt(vi[0]*vi[0]+vi[1]*vi[1]+vi[2]*vi[2])||1;
+    const x=(vi[0]*(1-lp)+vj[0]*lp)/norm*R*f;
+    const y=(vi[1]*(1-lp)+vj[1]*lp)/norm*R*f;
+    const z=(vi[2]*(1-lp)+vj[2]*lp)/norm*R*f;
+    out.push([x,y,z, rnd()*Math.PI*2, R*.02, lp, .4+rnd()*.6]);
+  }
+  return out;
+}
+
+function genPyramid(n,R) {
+  const out=[], apex=[0,R*.9,0];
+  const base=[[R*.8,-R*.5,0],[0,-R*.5,R*.8],[-R*.8,-R*.5,0],[0,-R*.5,-R*.8]];
+  const faces=[[apex,base[0],base[1]],[apex,base[1],base[2]],[apex,base[2],base[3]],[apex,base[3],base[0]],[base[0],base[1],base[2]],[base[0],base[2],base[3]]];
+  const perFace=Math.ceil(n/faces.length);
+  faces.forEach(([a,b,c])=>out.push(...sampleFace(a.map(v=>v/R),b.map(v=>v/R),c.map(v=>v/R),perFace,R)));
+  return out.slice(0,n);
+}
+
+// ── FLUIDOS ──
+function genWave(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const u=(rnd()*2-1)*R, v=(rnd()*2-1)*R;
+    const dist=Math.sqrt(u*u+v*v)/R;
+    if(dist>1.05) { i--; continue; }
+    const wh=Math.sin(dist*Math.PI*3)*R*.22*(1-dist*.7);
+    const f=1+(rnd()-.5)*cfg.fuzz*.4;
+    out.push(pt(u*f, wh+(rnd()-.5)*R*.04, v*f, dist));
+  }
+  return out;
+}
+
+function genDrop(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const t=rnd(); // 0=bottom tip, 1=top
+    const yr=t*2-1; // -1..1
+    const bulge=t<.7 ? Math.sin(t/0.7*Math.PI) : (1-t)/.3;
+    const r=bulge*R*.72*(1+(rnd()-.5)*cfg.fuzz*.4);
+    const a=rnd()*Math.PI*2;
+    out.push(pt(Math.cos(a)*r, yr*R*.9, Math.sin(a)*r, t));
+  }
+  return out;
+}
+
+function genBubbles(n,R) {
+  const out=[];
+  const centers=[[0,0,0]];
+  for(let i=0;i<7;i++){
+    const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI, d=R*.68;
+    centers.push([Math.cos(el)*Math.cos(a)*d, Math.sin(el)*d, Math.cos(el)*Math.sin(a)*d]);
+  }
+  const radii=[R*.38,...Array(7).fill(0).map(()=>R*(.1+rnd()*.16))];
+  for(let i=0;i<n;i++){
+    const ci=i%centers.length, [cx,cy,cz]=centers[ci], r=radii[ci];
+    const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI;
+    const f=1+(rnd()-.5)*cfg.fuzz*.35;
+    out.push(pt(cx+Math.cos(el)*Math.cos(a)*r*f, cy+Math.sin(el)*r*f, cz+Math.cos(el)*Math.sin(a)*r*f, ci/centers.length));
+  }
+  return out;
+}
+
+function genSnail(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const t=rnd(), turns=4;
+    const a=t*Math.PI*2*turns;
+    const r=t*R*.9*(1+(rnd()-.5)*cfg.fuzz*.5);
+    const elev=Math.pow(t,1.5)*R*.75*(1+(rnd()-.5)*cfg.fuzz*.3);
+    const twist=t*Math.PI*1.5;
+    out.push(pt(Math.cos(a)*r, elev-R*.35, Math.sin(a)*r, t));
+  }
+  return out;
+}
+
+// ── ASTROFÍSICA ──
+function genBlackhole(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const t=rnd(), a=rnd()*Math.PI*2;
+    // disk concentrated around equator
+    const r=(R*.3+t*R*.7)*(1+(rnd()-.5)*cfg.fuzz*.3);
+    const y=(rnd()-.5)*R*.08*(1-t*.7);
+    out.push(pt(Math.cos(a)*r, y, Math.sin(a)*r, t));
+  }
+  return out;
+}
+
+function genComet(n,R) {
+  const out=[], headN=Math.floor(n*.3), tailN=n-headN;
+  for(let i=0;i<headN;i++){
+    const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI, r=rnd()*R*.25;
+    out.push(pt(Math.cos(el)*Math.cos(a)*r, Math.sin(el)*r+R*.2, Math.cos(el)*Math.sin(a)*r, rnd()*.4));
+  }
+  for(let i=0;i<tailN;i++){
+    const t=rnd(), spread=t*R*.55*(1+(rnd()-.5)*cfg.fuzz);
+    const a=rnd()*Math.PI*2;
+    out.push(pt(Math.cos(a)*spread*.25, -t*R*.85+R*.15, Math.sin(a)*spread, .4+t*.6));
+  }
+  return out;
+}
+
+function genPlanet(n,R) {
+  const out=[], planetN=Math.floor(n*.6), ringN=n-planetN;
+  const phi=Math.PI*(3-Math.sqrt(5));
+  for(let i=0;i<planetN;i++){
+    const yi=1-(i/(planetN-1))*2, ri=Math.sqrt(Math.max(0,1-yi*yi)), th=phi*i;
+    const f=1+(rnd()-.5)*cfg.fuzz*.2;
+    out.push(pt(ri*Math.cos(th)*R*.55*f, yi*R*.55*f, ri*Math.sin(th)*R*.55*f, yi*.5+.5));
+  }
+  for(let i=0;i<ringN;i++){
+    const u=rnd()*Math.PI*2, mR=R*.82, tR=R*.15*(rnd()*.6+.4);
+    const tilt=.45;
+    const x=Math.cos(u)*mR*(1+(rnd()-.5)*cfg.fuzz*.3);
+    const yflat=Math.sin(u)*tR;
+    out.push(pt(x, yflat*Math.cos(tilt), mR*Math.sin(u)*Math.sin(tilt)+yflat*Math.sin(tilt), i/ringN));
+  }
+  return out;
+}
+
+function genSupernova(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI;
+    const t=Math.pow(rnd(),.4);
+    const r=t*R*(1+(rnd()-.5)*cfg.fuzz*.5);
+    out.push(pt(Math.cos(el)*Math.cos(a)*r, Math.sin(el)*r, Math.cos(el)*Math.sin(a)*r, t));
+  }
+  return out;
+}
+
+// ── MATEMÁTICAS ──
+function genKlein(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const u=rnd()*Math.PI*2, v=rnd()*Math.PI*2;
+    let x,y,z;
+    if(u<Math.PI){
+      x=(2.5+1.5*Math.cos(v))*Math.cos(u);
+      y=(2.5+1.5*Math.cos(v))*Math.sin(u);
+      z=-.5*Math.sin(v);
+    } else {
+      x=(2.5+1.5*Math.cos(v))*Math.cos(u);
+      y=(2.5+1.5*Math.cos(v))*Math.sin(u);
+      z=.5*Math.sin(v);
+    }
+    const scale=R/3.5, f=1+(rnd()-.5)*cfg.fuzz*.25;
+    out.push(pt(x*scale*f, y*scale*f, z*scale*f, v/(Math.PI*2)));
+  }
+  return out;
+}
+
+function genLemniscate(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const t=rnd()*Math.PI*2, s=rnd()-.5;
+    const denom=1+Math.sin(t)*Math.sin(t);
+    const x=Math.cos(t)/denom*R;
+    const y=Math.sin(t)*Math.cos(t)/denom*R;
+    const z=s*R*.18*(1+(rnd()-.5)*cfg.fuzz);
+    out.push(pt(x, z, y, (Math.cos(t)*.5+.5)));
+  }
+  return out;
+}
+
+function genRose3D(n,R) {
+  const out=[], petals=6;
+  for(let i=0;i<n;i++){
+    const t=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI*.4;
+    const r=Math.abs(Math.cos(petals*t/2))*R*(1+(rnd()-.5)*cfg.fuzz*.4);
+    out.push(pt(Math.cos(el)*Math.cos(t)*r, Math.sin(el)*r, Math.cos(el)*Math.sin(t)*r, Math.abs(Math.cos(petals*t/2))));
+  }
+  return out;
+}
+
+function genTrefoil(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const t=rnd()*Math.PI*2;
+    const x=(Math.sin(t)+2*Math.sin(2*t));
+    const y=(Math.cos(t)-2*Math.cos(2*t));
+    const z=-Math.sin(3*t);
+    const scale=R/3.2, f=1+(rnd()-.5)*cfg.fuzz*.4;
+    out.push(pt(x*scale*f, y*scale*f, z*scale*f, (Math.sin(t)*.5+.5)));
+  }
+  return out;
+}
+
+// ── DINÁMICAS ──
+function genAtom(n,R) {
+  const out=[];
+  const nucleus=Math.floor(n*.08), rest=n-nucleus;
+  for(let i=0;i<nucleus;i++){
+    const r=rnd()*R*.12, a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI;
+    out.push(pt(Math.cos(el)*Math.cos(a)*r, Math.sin(el)*r, Math.cos(el)*Math.sin(a)*r, .5));
+  }
+  const orbits=3;
+  for(let i=0;i<rest;i++){
+    const orb=i%orbits, tilt=orb*Math.PI/orbits;
+    const t=rnd()*Math.PI*2;
+    const r=R*(.5+orb*.18);
+    const x=Math.cos(t)*r;
+    const y=Math.sin(t)*r*Math.sin(tilt);
+    const z=Math.sin(t)*r*Math.cos(tilt);
+    out.push(pt(x+(rnd()-.5)*cfg.fuzz*R*.08, y+(rnd()-.5)*cfg.fuzz*R*.08, z+(rnd()-.5)*cfg.fuzz*R*.08, orb/orbits));
+  }
+  return out;
+}
+
+function genNeural(n,R) {
+  const nodes=12, out=[];
+  const npos=[];
+  for(let i=0;i<nodes;i++){
+    const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI, r=rnd()*R*.75;
+    npos.push([Math.cos(el)*Math.cos(a)*r, Math.sin(el)*r, Math.cos(el)*Math.sin(a)*r]);
+  }
+  const perNode=Math.floor(n*.4/nodes), perEdge=Math.floor(n*.6/(nodes*2));
+  npos.forEach(([nx,ny,nz],i)=>{
+    for(let j=0;j<perNode;j++){
+      const r=R*.07*(rnd()*.6+.4);
+      const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI;
+      out.push(pt(nx+Math.cos(el)*Math.cos(a)*r, ny+Math.sin(el)*r, nz+Math.cos(el)*Math.sin(a)*r, i/nodes));
+    }
+    // edges
+    const connections=Math.floor(rnd()*4)+2;
+    for(let c=0;c<connections;c++){
+      const j=(i+1+Math.floor(rnd()*(nodes-1)))%nodes;
+      const [tx,ty,tz]=npos[j];
+      for(let k=0;k<perEdge;k++){
+        const t=rnd(), f=(rnd()-.5)*cfg.fuzz*R*.07;
+        out.push(pt(nx*(1-t)+tx*t+f, ny*(1-t)+ty*t+f, nz*(1-t)+tz*t+f, t));
+      }
+    }
+  });
+  return out.slice(0,n);
+}
+
+function genTornado(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const t=rnd();
+    const y=(t-.5)*R*2;
+    const r=t*R*.9*(1+(rnd()-.5)*cfg.fuzz*.5);
+    const a=rnd()*Math.PI*2;
+    out.push(pt(Math.cos(a)*r, y, Math.sin(a)*r, t));
+  }
+  return out;
+}
+
+// ── CONSTELACIONES ──
+// Coordenadas: [RA en horas, Dec en grados] → convertidas a XYZ en esfera unitaria
+// Índices de conexión: pares [i,j] que forman las líneas
+const CONSTELLATIONS = {
+  aries: {
+    stars: [[2.119,23.46],[1.910,20.81],[1.887,19.29],[1.922,19.18],[2.833,27.26]],
+    lines: [[0,1],[1,2],[2,3],[0,4]]
+  },
+  taurus: {
+    stars: [[4.598,16.51],[3.791,24.11],[4.477,15.87],[4.329,15.63],[4.013,12.49],[5.438,28.61],[5.627,21.14],[4.703,22.96],[4.476,19.18]],
+    lines: [[0,2],[2,3],[3,4],[0,1],[1,8],[8,6],[0,5],[5,6],[6,7]]
+  },
+  gemini: {
+    stars: [[7.755,28.03],[7.576,31.89],[6.628,16.40],[6.754,12.90],[7.069,20.57],[6.879,13.18],[6.382,22.51],[6.248,22.51],[7.336,21.98],[7.185,30.24]],
+    lines: [[0,9],[9,4],[4,2],[2,3],[1,6],[6,7],[7,5],[0,1],[9,8]]
+  },
+  cancer: {
+    stars: [[8.745,18.15],[8.978,11.86],[8.275,9.19],[8.721,21.47],[8.198,17.65]],
+    lines: [[0,1],[0,3],[1,2],[3,4],[2,4]]
+  },
+  leo: {
+    stars: [[10.139,11.97],[10.332,19.84],[9.879,26.01],[10.122,23.42],[9.764,23.77],[10.897,15.43],[11.235,20.52],[11.817,14.57],[9.529,9.99]],
+    lines: [[0,1],[1,2],[2,3],[3,4],[4,0],[0,5],[5,6],[6,7],[0,8]]
+  },
+  virgo: {
+    stars: [[13.420,-11.16],[11.845,-1.45],[12.694,-1.45],[12.332,-0.67],[13.036,10.96],[14.177,13.78],[13.578,-0.60],[12.926,-3.40],[13.165,0.55]],
+    lines: [[0,6],[6,8],[8,2],[2,1],[2,3],[3,4],[4,5],[8,7],[0,7]]
+  },
+  libra: {
+    stars: [[15.283,-9.38],[14.848,-15.99],[15.068,-25.28],[15.644,-28.13],[14.351,-13.37]],
+    lines: [[0,1],[1,2],[2,3],[0,4],[1,4]]
+  },
+  scorpio: {
+    stars: [[16.490,-26.43],[16.836,-34.29],[17.622,-43.00],[17.708,-39.03],[17.795,-40.13],[17.560,-37.10],[16.004,-22.62],[16.351,-25.59],[17.531,-37.30],[17.793,-37.04]],
+    lines: [[0,1],[1,2],[0,6],[6,7],[7,1],[2,3],[3,4],[4,5],[2,8],[8,9]]
+  },
+  sagittarius: {
+    stars: [[19.044,-29.88],[18.921,-26.30],[18.350,-36.76],[18.466,-25.42],[18.962,-21.02],[18.029,-30.42],[19.116,-27.67],[18.761,-36.46],[18.293,-21.11]],
+    lines: [[0,1],[1,4],[4,8],[0,2],[2,5],[5,3],[3,1],[0,6],[6,4],[2,7]]
+  },
+  capricorn: {
+    stars: [[20.294,-12.51],[20.350,-14.78],[21.784,-16.13],[20.863,-17.23],[21.099,-17.23],[21.370,-16.84],[20.668,-14.78]],
+    lines: [[0,1],[1,6],[6,3],[3,4],[4,5],[5,2],[0,2]]
+  },
+  aquarius: {
+    stars: [[22.877,-15.82],[22.589,-0.31],[22.361,-1.39],[22.097,-13.86],[21.526,-5.57],[22.480,-0.02],[23.239,-6.05],[22.826,-13.59]],
+    lines: [[0,7],[7,3],[3,4],[4,2],[2,1],[1,5],[5,0],[0,6],[6,7]]
+  },
+  pisces: {
+    stars: [[1.756,9.16],[23.666,5.63],[23.460,6.86],[1.194,8.19],[1.529,15.35],[0.812,7.59],[2.034,2.76],[1.020,3.49],[23.985,6.82]],
+    lines: [[0,3],[3,4],[0,6],[6,7],[7,5],[5,8],[8,2],[2,1],[1,8]]
+  },
+  orion: {
+    stars: [[5.919,7.41],[5.242,6.35],[5.533,-0.30],[5.680,-1.94],[5.796,1.71],[5.603,-5.91],[4.844,6.96],[5.248,2.44],[5.588,-5.41],[5.906,3.20]],
+    lines: [[0,9],[9,6],[6,7],[0,4],[4,2],[2,3],[3,5],[5,8],[0,1],[1,7],[7,4],[3,8]]
+  },
+  ursamajor: {
+    stars: [[11.062,56.38],[11.031,56.37],[10.372,55.96],[9.849,59.04],[9.526,51.68],[8.999,48.04],[11.897,53.69],[12.900,55.96],[13.398,54.93],[12.257,57.03]],
+    lines: [[0,1],[1,2],[2,3],[3,4],[4,5],[0,6],[6,7],[7,8],[8,9],[9,0]]
+  },
+  ursaminor: {
+    stars: [[2.530,89.26],[14.845,74.16],[15.734,77.79],[16.292,75.76],[17.537,86.59],[16.766,82.04],[15.345,71.83]],
+    lines: [[0,5],[5,4],[4,2],[2,1],[1,6],[6,3],[3,2]]
+  },
+  crux: {
+    stars: [[12.443,-63.10],[12.519,-57.11],[12.252,-58.75],[12.353,-60.40],[12.772,-60.01]],
+    lines: [[0,1],[2,3],[3,4],[0,2],[1,4]]
+  },
+  cassiopeia: {
+    stars: [[0.675,56.54],[1.430,60.24],[0.945,60.72],[0.153,59.15],[1.906,63.67]],
+    lines: [[0,2],[2,1],[1,4],[0,3]]
+  },
+  andromeda: {
+    stars: [[0.139,29.09],[0.830,30.86],[1.162,35.62],[1.633,48.63],[1.029,38.50],[2.065,42.33],[0.656,30.86],[2.503,50.69]],
+    lines: [[0,6],[6,1],[1,4],[4,2],[2,5],[5,7],[1,3]]
+  },
+  pegasus: {
+    stars: [[0.139,29.09],[22.691,10.83],[23.063,28.08],[21.744,9.87],[22.116,6.20],[22.833,24.60],[23.680,15.21],[23.409,23.40]],
+    lines: [[0,2],[2,7],[7,5],[5,1],[1,3],[3,4],[0,6],[6,1]]
+  },
+  hercules: {
+    stars: [[17.244,14.39],[16.503,21.49],[16.688,31.60],[17.005,30.93],[17.657,46.01],[17.394,37.15],[16.365,19.15],[17.937,29.25],[18.126,28.76]],
+    lines: [[0,6],[6,1],[1,2],[2,3],[3,4],[4,5],[5,2],[0,3],[3,7],[7,8],[5,8]]
+  }
+};
+
+// Convierte RA (horas) / Dec (grados) a XYZ en esfera unitaria
+function raDec2xyz(ra, dec) {
+  const raR = ra / 12 * Math.PI;   // horas → radianes
+  const decR = dec * Math.PI / 180;
+  return [
+    Math.cos(decR) * Math.cos(raR),
+    Math.sin(decR),
+    Math.cos(decR) * Math.sin(raR)
+  ];
+}
+
+// Centra y escala la constelación para que quepa en el radio R
+function buildConstellation(key, n, R) {
+  const con = CONSTELLATIONS[key];
+  if (!con) return [];
+
+  // Convertir a XYZ
+  const raw = con.stars.map(([ra, dec]) => raDec2xyz(ra, dec));
+
+  // Centroide
+  const cx = raw.reduce((s,p)=>s+p[0],0)/raw.length;
+  const cy = raw.reduce((s,p)=>s+p[1],0)/raw.length;
+  const cz = raw.reduce((s,p)=>s+p[2],0)/raw.length;
+  const centered = raw.map(([x,y,z])=>[x-cx, y-cy, z-cz]);
+
+  // Escala: max distancia al origen → R * 0.72
+  const maxD = Math.max(...centered.map(([x,y,z])=>Math.sqrt(x*x+y*y+z*z))) || 1;
+  const scale = R * 0.72 / maxD;
+  const scaled = centered.map(([x,y,z])=>[x*scale, y*scale, z*scale]);
+
+  const out = [];
+  const starSize = cfg.dot * 2.2; // las estrellas principales son más grandes (se maneja via tc)
+
+  // 1. Partículas en los nodos estelares (clúster brillante)
+  const starParticles = Math.min(Math.floor(n * 0.35), 40 * con.stars.length);
+  const perStar = Math.floor(starParticles / con.stars.length);
+  scaled.forEach(([sx,sy,sz], si) => {
+    const tc = si / (con.stars.length - 1 || 1);
+    // Centro de la estrella - punto muy brillante
+    out.push([sx, sy, sz, rnd()*Math.PI*2, 0.001, tc, 0.3]);
+    // Halo de partículas alrededor
+    for(let j = 1; j < perStar; j++) {
+      const r = rnd() * R * 0.045 * (1 + cfg.fuzz * 0.5);
+      const a = rnd() * Math.PI * 2, el = (rnd()-.5) * Math.PI;
+      out.push([
+        sx + Math.cos(el)*Math.cos(a)*r,
+        sy + Math.sin(el)*r,
+        sz + Math.cos(el)*Math.sin(a)*r,
+        rnd()*Math.PI*2, R*0.008, tc, 0.3+rnd()*0.4
+      ]);
+    }
+  });
+
+  // 2. Partículas a lo largo de las líneas de conexión (líneas punteadas)
+  const lineParticles = n - out.length;
+  const perLine = con.lines.length > 0 ? Math.floor(lineParticles / con.lines.length) : 0;
+  con.lines.forEach(([ai, bi]) => {
+    if (ai >= scaled.length || bi >= scaled.length) return;
+    const [ax,ay,az] = scaled[ai];
+    const [bx,by,bz] = scaled[bi];
+    for(let k = 0; k < perLine; k++) {
+      const t = rnd();
+      const f = (rnd()-.5) * cfg.fuzz * R * 0.018;
+      const tc = ai / (con.stars.length - 1 || 1) * (1-t) + bi / (con.stars.length - 1 || 1) * t;
+      out.push([
+        ax*(1-t)+bx*t + f,
+        ay*(1-t)+by*t + f,
+        az*(1-t)+bz*t + f,
+        rnd()*Math.PI*2, R*0.006, tc, 0.25+rnd()*0.3
+      ]);
+    }
+  });
+
+  return out.slice(0, n);
+}
+
+// ── BUILD ──
+function build() {
+  const n=cfg.count, R=cfg.radius;
+  const gen = {
+    nebula:genNebula, sphere:genSphere, ring:genRing, galaxy:genGalaxy,
+    vortex:genVortex, dna:genDNA, icosahedron:genIcosahedron,
+    octahedron:genOctahedron, dodecahedron:genDodecahedron, pyramid:genPyramid,
+    wave:genWave, drop:genDrop, bubbles:genBubbles, snail:genSnail,
+    blackhole:genBlackhole, comet:genComet, planet:genPlanet, supernova:genSupernova,
+    klein:genKlein, lemniscate:genLemniscate, rose:genRose3D, trefoil:genTrefoil,
+    atom:genAtom, neural:genNeural, tornado:genTornado
+  };
+  // Constellation models
+  const constellationKeys = Object.keys(CONSTELLATIONS);
+  if (constellationKeys.includes(cfg.model)) {
+    pts = buildConstellation(cfg.model, n, R);
+  } else {
+    pts = (gen[cfg.model]||genNebula)(n, R);
+  }
+}
+
+// ── 3D ──
+function rotY(x,z,a){return[x*Math.cos(a)-z*Math.sin(a),x*Math.sin(a)+z*Math.cos(a)];}
+function rotX(y,z,a){return[y*Math.cos(a)-z*Math.sin(a),y*Math.sin(a)+z*Math.cos(a)];}
+
+// ── DRAW ──
+function draw() {
+  const S=(cfg.radius+62)*2, cx=S/2, cy=S/2;
+  ctx.clearRect(0,0,S,S);
+  time += .016*cfg.speed;
+  angle = time*.38;
+  const breathe=1+Math.sin(time*.5)*.018;
+
+  // core glow
+  const grd=ctx.createRadialGradient(cx,cy,0,cx,cy,cfg.radius*.6);
+  grd.addColorStop(0,`rgba(${cfg.ca},0.055)`);
+  grd.addColorStop(1,'rgba(0,0,0,0)');
+  ctx.fillStyle=grd; ctx.fillRect(0,0,S,S);
+
+  const projected=[];
+  for(const [bx,by,bz,phase,dA,tc,wSpd] of pts){
+    const wobble=Math.sin(time*wSpd+phase)*dA*breathe;
+    const wx=bx+wobble*Math.cos(phase), wy=by+wobble*Math.sin(phase)*.5, wz=bz+wobble*Math.sin(phase);
+    const [rx,rz0]=rotY(wx,wz,angle);
+    const [ry,rz]=rotX(wy,rz0,.28);
+    const fov=430, depth=fov/(fov+rz+cfg.radius*1.3);
+    const sx=cx+rx*depth, sy=cy+ry*depth;
+    const dist=Math.sqrt(rx*rx+ry*ry)/cfg.radius;
+    let alpha=depth*1.4*cfg.opacity*Math.max(0,1-Math.pow(dist,2.2)*.5);
+    projected.push({sx,sy,rz,depth,tc,alpha,size:cfg.dot*depth});
+  }
+  projected.sort((a,b)=>a.rz-b.rz);
+  for(const p of projected){
+    if(p.size<.22||p.alpha<.01) continue;
+    ctx.beginPath();
+    ctx.arc(p.sx,p.sy,p.size,0,Math.PI*2);
+    ctx.fillStyle=ptColor(p.tc,p.alpha);
+    ctx.fill();
+  }
+  raf=requestAnimationFrame(draw);
+}
+
+// ── GLOW ──
+function applyGlow(){
+  const [r,g,b]=cfg.ca,[r2,g2,b2]=cfg.cb;
+  canvas.style.filter=cfg.glow>0
+    ?`drop-shadow(0 0 ${cfg.glow*.55}px rgba(${r},${g},${b},.9)) drop-shadow(0 0 ${cfg.glow}px rgba(${r2},${g2},${b2},.45))`
+    :'none';
+  document.documentElement.style.setProperty('--accent',`rgb(${r},${g},${b})`);
+}
+
+function init(){setupCanvas();build();if(raf)cancelAnimationFrame(raf);draw();applyGlow();}
+
+// ── CONTROLS ──
+$('modelSeg').addEventListener('click',e=>{
+  const btn=e.target.closest('button'); if(!btn) return;
+  cfg.model=btn.dataset.model;
+  document.querySelectorAll('#modelSeg button,#zodSeg button,#iconSeg button').forEach(b=>b.classList.toggle('active',b===btn));
+  build();
+});
+
+['zodSeg','iconSeg'].forEach(segId=>{
+  $(segId).addEventListener('click',e=>{
+    const btn=e.target.closest('button'); if(!btn) return;
+    cfg.model=btn.dataset.model;
+    document.querySelectorAll('#modelSeg button,#zodSeg button,#iconSeg button').forEach(b=>b.classList.toggle('active',b===btn));
+    build();
+  });
+});
+
+$('swatches').addEventListener('click',e=>{
+  const sw=e.target.closest('.swatch'); if(!sw) return;
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+  sw.classList.add('active');
+  cfg.ca=hexRgb(sw.dataset.ca); cfg.cb=hexRgb(sw.dataset.cb); cfg.cc=hexRgb(sw.dataset.cc);
+  $('ca').value=sw.dataset.ca; $('cb').value=sw.dataset.cb; $('cc').value=sw.dataset.cc;
+  applyGlow();
+});
+
+['ca','cb','cc'].forEach((id,i)=>{
+  $(id).addEventListener('input',function(){
+    document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+    cfg[id]=hexRgb(this.value); if(i===0) applyGlow();
+  });
+});
+
+function slider(id,valId,key,fmt,rebuild=false,reinit=false){
+  $(id).addEventListener('input',function(){
+    cfg[key]=+this.value;
+    $(valId).textContent=fmt?fmt(this.value):this.value;
+    if(reinit) init(); else if(rebuild) build();
+    if(key==='glow') applyGlow();
+  });
+}
+slider('dotR','dotV','dot');
+slider('cntR','cntV','count','',true);
+slider('spdR','spdV','speed',v=>v+'×');
+slider('radR','radV','radius','',false,true);
+slider('fuzzR','fuzzV','fuzz','',true);
+slider('glwR','glwV','glow');
+slider('opR','opV','opacity');
+
+init();
+</script>
+</body>
+</html>
