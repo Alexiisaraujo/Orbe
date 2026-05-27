@@ -1,915 +1,1413 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Orbe de Partículas</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=Inter:wght@300;400&display=swap" rel="stylesheet">
+<title id="cms-page-title">tecnoARG – Sites Inteligentes para Negócios</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#05050f;--panel:rgba(7,8,22,0.97);--border:rgba(255,255,255,0.055);
-  --accent:#6c63ff;--text:#b0bcd8;--dim:#2e3a58;
-}
-body{
-  background:var(--bg);color:var(--text);
-  font-family:'Inter',sans-serif;font-weight:300;
-  min-height:100vh;display:flex;flex-direction:column;
-  align-items:center;justify-content:flex-start;
-  overflow-x:hidden;padding:22px 0 36px;gap:0;
-}
-body::before{
-  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:
-    radial-gradient(1px 1px at 7% 12%,rgba(255,255,255,.5) 0%,transparent 100%),
-    radial-gradient(1px 1px at 23% 66%,rgba(255,255,255,.3) 0%,transparent 100%),
-    radial-gradient(1px 1px at 45% 9%,rgba(255,255,255,.55) 0%,transparent 100%),
-    radial-gradient(1px 1px at 61% 80%,rgba(255,255,255,.35) 0%,transparent 100%),
-    radial-gradient(1px 1px at 82% 33%,rgba(255,255,255,.4) 0%,transparent 100%),
-    radial-gradient(1px 1px at 91% 58%,rgba(255,255,255,.45) 0%,transparent 100%),
-    radial-gradient(1px 1px at 34% 91%,rgba(255,255,255,.3) 0%,transparent 100%),
-    radial-gradient(1px 1px at 13% 45%,rgba(255,255,255,.25) 0%,transparent 100%),
-    radial-gradient(1px 1px at 73% 20%,rgba(255,255,255,.4) 0%,transparent 100%),
-    radial-gradient(1px 1px at 54% 54%,rgba(255,255,255,.2) 0%,transparent 100%);
-}
-h1{
-  font-family:'Syne',sans-serif;font-weight:800;
-  font-size:clamp(.9rem,2.6vw,1.5rem);letter-spacing:.4em;
-  text-transform:uppercase;color:rgba(255,255,255,.82);
-  margin-bottom:1.4rem;position:relative;z-index:1;
-}
-.stage{position:relative;z-index:1;display:flex;align-items:center;justify-content:center;}
-canvas{display:block;}
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #16161f;
+    --card: #1a1a26;
+    --border: #2a2a3d;
+    --accent: #4f46e5;
+    --accent2: #6366f1;
+    --accent-light: #818cf8;
+    --green: #22c55e;
+    --text: #f0f0f8;
+    --muted: #8888aa;
+    --white: #ffffff;
+    --font-head: 'Syne', sans-serif;
+    --font-body: 'DM Sans', sans-serif;
+  }
 
-/* PANEL */
-.panel{
-  background:var(--panel);border:1px solid var(--border);
-  border-radius:20px;padding:1.25rem 1.45rem;
-  margin-top:1.6rem;width:min(95vw,640px);
-  display:grid;grid-template-columns:1fr 1fr;
-  gap:.9rem 1.8rem;position:relative;z-index:1;
-  backdrop-filter:blur(20px);
-}
-.panel-full{grid-column:1/-1;}
-label{
-  display:block;font-family:'Syne',sans-serif;
-  font-size:.6rem;letter-spacing:.24em;text-transform:uppercase;
-  color:var(--dim);margin-bottom:.36rem;
-}
-.seg{display:flex;flex-wrap:wrap;gap:.28rem;}
-.seg button{
-  background:rgba(255,255,255,.03);border:1px solid var(--border);
-  border-radius:7px;color:var(--dim);
-  font-family:'Syne',sans-serif;font-size:.68rem;letter-spacing:.05em;
-  padding:.28rem .6rem;cursor:pointer;transition:all .16s;
-}
-.seg button:hover{border-color:var(--accent);color:var(--accent);}
-.seg button.active{
-  background:color-mix(in srgb,var(--accent) 15%,transparent);
-  border-color:var(--accent);color:var(--accent);
-  box-shadow:0 0 10px color-mix(in srgb,var(--accent) 22%,transparent);
-}
-input[type=range]{
-  -webkit-appearance:none;width:100%;height:2px;
-  border-radius:2px;background:rgba(255,255,255,.08);outline:none;cursor:pointer;
-}
-input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:11px;height:11px;border-radius:50%;
-  background:var(--accent);box-shadow:0 0 7px var(--accent);transition:transform .14s;
-}
-input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.35);}
-.sv{font-size:.68rem;color:var(--accent);float:right;font-family:'Syne',sans-serif;}
-.swatches{display:flex;gap:.4rem;flex-wrap:wrap;}
-.swatch{
-  width:22px;height:22px;border-radius:50%;border:2px solid transparent;
-  cursor:pointer;transition:transform .16s,border-color .16s;
-}
-.swatch:hover,.swatch.active{transform:scale(1.28);border-color:rgba(255,255,255,.75);}
-.crow{display:flex;gap:.45rem;align-items:center;}
-.crow input[type=color]{width:26px;height:26px;border:none;border-radius:50%;cursor:pointer;background:none;padding:0;}
-.crow span{font-size:.62rem;color:var(--dim);}
-.divider{grid-column:1/-1;height:1px;background:var(--border);margin:.05rem 0;}
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 15px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 5%; height: 64px;
+    background: rgba(10,10,15,.85);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    font-family: var(--font-head);
+    font-size: 1.4rem; font-weight: 800;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .logo span { color: var(--accent-light); }
+
+  .nav-links {
+    display: flex; gap: 2rem; list-style: none;
+  }
+  .nav-links a {
+    color: var(--muted); text-decoration: none;
+    font-size: .9rem; font-weight: 500;
+    transition: color .2s;
+  }
+  .nav-links a:hover, .nav-links a.active { color: var(--text); }
+  .nav-links a.active { border-bottom: 2px solid var(--accent); padding-bottom: 2px; }
+
+  .btn-whatsapp {
+    display: flex; align-items: center; gap: .5rem;
+    background: var(--accent);
+    color: var(--white); border: none; border-radius: 8px;
+    padding: .55rem 1.1rem; font-size: .85rem; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: background .2s, transform .15s;
+  }
+  .btn-whatsapp:hover { background: var(--accent2); transform: translateY(-1px); }
+  .btn-whatsapp svg { width: 18px; height: 18px; }
+
+  /* ── HERO ── */
+  .hero {
+    display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center; gap: 2rem;
+    padding: 80px 5% 60px;
+    min-height: calc(100vh - 64px);
+    position: relative;
+    background: var(--bg);
+    overflow: hidden;
+  }
+
+  #universe-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .hero-content,
+  .hero-visuals {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: .3rem .85rem; font-size: .75rem;
+    color: var(--muted); letter-spacing: .08em;
+    margin-bottom: 1.4rem;
+    background: rgba(255,255,255,.03);
+  }
+
+  .hero h1 {
+    font-family: var(--font-head);
+    font-size: clamp(2.2rem, 4vw, 3.4rem);
+    font-weight: 800; line-height: 1.12;
+    margin-bottom: 1.2rem;
+  }
+  .hero h1 .highlight { color: var(--accent-light); }
+
+  .hero p {
+    color: var(--muted); font-size: 1rem; max-width: 440px;
+    margin-bottom: 2.2rem; line-height: 1.7;
+  }
+
+  .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: var(--accent); color: var(--white);
+    border: none; border-radius: 9px;
+    padding: .75rem 1.6rem; font-size: .95rem; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: background .2s, transform .15s, box-shadow .2s;
+  }
+  .btn-primary:hover {
+    background: var(--accent2); transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(79,70,229,.4);
+  }
+
+  .btn-secondary {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border); border-radius: 9px;
+    padding: .75rem 1.6rem; font-size: .95rem; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: border-color .2s, transform .15s;
+  }
+  .btn-secondary:hover { border-color: var(--accent-light); transform: translateY(-2px); }
+
+  /* ── HERO 3D SCENE ── */
+  .hero-visuals {
+    position: relative;
+    height: 480px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    perspective: 1000px;
+  }
+
+  .scene-canvas {
+    position: absolute; inset: 0;
+    pointer-events: none;
+  }
+
+  /* Orb glows */
+  .orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    pointer-events: none;
+  }
+  .orb-1 {
+    width: 300px; height: 300px;
+    background: rgba(79,70,229,.35);
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    animation: orbPulse 4s ease-in-out infinite;
+  }
+  .orb-2 {
+    width: 180px; height: 180px;
+    background: rgba(99,102,241,.25);
+    top: 20%; right: 10%;
+    animation: orbPulse 5s 1s ease-in-out infinite;
+  }
+  .orb-3 {
+    width: 140px; height: 140px;
+    background: rgba(167,139,250,.2);
+    bottom: 15%; left: 15%;
+    animation: orbPulse 6s 2s ease-in-out infinite;
+  }
+
+  @keyframes orbPulse {
+    0%,100% { opacity: .6; transform: translate(-50%,-50%) scale(1); }
+    50%      { opacity: 1;  transform: translate(-50%,-50%) scale(1.15); }
+  }
+  .orb-2 { animation-name: orbPulse2; }
+  .orb-3 { animation-name: orbPulse3; }
+  @keyframes orbPulse2 {
+    0%,100% { opacity:.5; transform:scale(1); }
+    50%     { opacity:.9; transform:scale(1.2); }
+  }
+  @keyframes orbPulse3 {
+    0%,100% { opacity:.4; transform:scale(1); }
+    50%     { opacity:.8; transform:scale(1.25); }
+  }
+
+  /* Cards 3D stack */
+  .cards-3d {
+    position: relative;
+    width: 340px; height: 400px;
+    transform-style: preserve-3d;
+    animation: float3d 6s ease-in-out infinite;
+  }
+
+  @keyframes float3d {
+    0%,100% { transform: rotateX(4deg) rotateY(-8deg) translateY(0px); }
+    33%     { transform: rotateX(-2deg) rotateY(6deg) translateY(-14px); }
+    66%     { transform: rotateX(6deg) rotateY(-4deg) translateY(-6px); }
+  }
+
+  /* Card base */
+  .hcard {
+    position: absolute;
+    background: rgba(22,22,34,.92);
+    border: 1px solid rgba(99,102,241,.35);
+    border-radius: 20px;
+    backdrop-filter: blur(12px);
+    box-shadow:
+      0 0 0 1px rgba(99,102,241,.1),
+      0 20px 60px rgba(0,0,0,.6),
+      inset 0 1px 0 rgba(255,255,255,.06);
+    overflow: hidden;
+    transition: box-shadow .3s;
+  }
+
+  /* Card 1 – Cardápio Digital (back) */
+  .hcard-menu {
+    width: 300px; height: 200px;
+    top: 20px; left: 0;
+    transform: translateZ(-30px) rotate(-3deg);
+    animation: cardBob1 7s 0.5s ease-in-out infinite;
+  }
+  @keyframes cardBob1 {
+    0%,100% { transform: translateZ(-30px) rotate(-3deg) translateY(0); }
+    50%     { transform: translateZ(-30px) rotate(-3deg) translateY(-8px); }
+  }
+
+  /* Card 2 – Notificação (top) */
+  .hcard-notif {
+    width: 260px; height: 72px;
+    top: 0; right: -20px;
+    transform: translateZ(40px) rotate(2deg);
+    animation: cardBob2 5s 1s ease-in-out infinite;
+  }
+  @keyframes cardBob2 {
+    0%,100% { transform: translateZ(40px) rotate(2deg) translateY(0); }
+    50%     { transform: translateZ(40px) rotate(2deg) translateY(-10px); }
+  }
+
+  /* Card 3 – Agendamento (front) */
+  .hcard-booking {
+    width: 280px; height: 220px;
+    bottom: 20px; right: -10px;
+    transform: translateZ(60px) rotate(1.5deg);
+    animation: cardBob3 6s 0.8s ease-in-out infinite;
+  }
+  @keyframes cardBob3 {
+    0%,100% { transform: translateZ(60px) rotate(1.5deg) translateY(0); }
+    50%     { transform: translateZ(60px) rotate(1.5deg) translateY(-12px); }
+  }
+
+  /* Card 4 – Stats mini (left) */
+  .hcard-stats {
+    width: 130px; height: 90px;
+    bottom: 60px; left: -10px;
+    transform: translateZ(30px) rotate(-2deg);
+    animation: cardBob4 8s 0.3s ease-in-out infinite;
+  }
+  @keyframes cardBob4 {
+    0%,100% { transform: translateZ(30px) rotate(-2deg) translateY(0); }
+    50%     { transform: translateZ(30px) rotate(-2deg) translateY(-6px); }
+  }
+
+  /* Inner card styles */
+  .hcard-head {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 14px 8px;
+    border-bottom: 1px solid rgba(99,102,241,.15);
+  }
+  .hcard-logo { font-family: var(--font-head); font-size: .8rem; font-weight: 800; }
+  .hcard-logo .dot { color: #f97316; }
+  .hcard-badge {
+    font-size: .55rem; font-weight: 700; letter-spacing: .06em;
+    background: rgba(79,70,229,.25); color: var(--accent-light);
+    border: 1px solid rgba(99,102,241,.3);
+    border-radius: 100px; padding: 2px 7px;
+  }
+  .hcard-body { padding: 10px 14px; }
+
+  /* Menu items inside card 1 */
+  .menu-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.04);
+    font-size: .65rem;
+  }
+  .menu-row:last-child { border-bottom: none; }
+  .menu-row .mname { color: var(--text); font-weight: 600; }
+  .menu-row .mdesc { color: var(--muted); font-size: .55rem; }
+  .menu-row .mprice { color: #22c55e; font-weight: 700; }
+  .menu-row .mbadge {
+    font-size: .5rem; background: rgba(249,115,22,.15);
+    color: #f97316; border-radius: 3px; padding: 1px 4px;
+  }
+
+  /* Notification card */
+  .notif-inner { display: flex; align-items: center; gap: 10px; padding: 14px; }
+  .notif-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.25);
+    display: flex; align-items: center; justify-content: center; font-size: 1rem; flex-shrink: 0;
+  }
+  .notif-text .nt { font-size: .72rem; font-weight: 700; }
+  .notif-text .ns { font-size: .6rem; color: var(--muted); margin-top: 1px; }
+  .notif-time { font-size: .55rem; color: var(--muted); margin-left: auto; white-space: nowrap; }
+
+  /* Booking card */
+  .booking-service-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: rgba(79,70,229,.1); border: 1px solid rgba(99,102,241,.2);
+    border-radius: 8px; padding: 7px 10px; margin-bottom: 8px;
+    font-size: .65rem;
+  }
+  .booking-service-row .sname { font-weight: 700; }
+  .booking-service-row .sdur { color: var(--muted); font-size: .58rem; }
+
+  .time-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 8px; }
+  .tchip {
+    font-size: .58rem; padding: 3px 8px;
+    border: 1px solid rgba(255,255,255,.1); border-radius: 6px; color: var(--muted);
+    cursor: pointer;
+  }
+  .tchip.on { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  .book-btn {
+    width: 100%; background: var(--accent); color: #fff;
+    border: none; border-radius: 8px; padding: 7px;
+    font-size: .68rem; font-weight: 700; cursor: pointer;
+    letter-spacing: .04em;
+  }
+
+  /* Stats card */
+  .stat-inner { padding: 10px 12px; }
+  .stat-label { font-size: .55rem; color: var(--muted); margin-bottom: 2px; }
+  .stat-value { font-family: var(--font-head); font-size: 1.3rem; font-weight: 800; color: var(--accent-light); }
+  .stat-trend { font-size: .55rem; color: #22c55e; margin-top: 2px; }
+
+  /* Floating particles */
+  .particle {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .p1 { width:4px;height:4px; background:var(--accent-light); top:12%; left:18%; opacity:.7; animation: pFloat 4s 0s ease-in-out infinite; }
+  .p2 { width:3px;height:3px; background:#22c55e; top:75%; left:75%; opacity:.6; animation: pFloat 5s 1s ease-in-out infinite; }
+  .p3 { width:5px;height:5px; background:#f97316; top:60%; left:5%; opacity:.5; animation: pFloat 6s 2s ease-in-out infinite; }
+  .p4 { width:3px;height:3px; background:var(--accent-light); top:20%; right:5%; opacity:.6; animation: pFloat 4.5s 0.5s ease-in-out infinite; }
+  .p5 { width:4px;height:4px; background:#22c55e; bottom:10%; left:40%; opacity:.5; animation: pFloat 7s 1.5s ease-in-out infinite; }
+
+  @keyframes pFloat {
+    0%,100% { transform: translateY(0) scale(1); opacity:.6; }
+    50%      { transform: translateY(-20px) scale(1.4); opacity:1; }
+  }
+
+  /* Animated typing cursor in card */
+  .typing-cursor {
+    display: inline-block; width: 2px; height: .75em;
+    background: var(--accent-light); margin-left: 2px;
+    animation: blink 1s step-end infinite;
+    vertical-align: middle;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+  /* Progress bar animated */
+  .prog-bar-wrap { background: rgba(255,255,255,.08); border-radius: 4px; height: 4px; margin: 6px 0; overflow: hidden; }
+  .prog-bar { height: 100%; border-radius: 4px; background: var(--accent); animation: progGrow 3s ease-in-out infinite alternate; }
+  @keyframes progGrow { from{width:30%} to{width:85%} }
+
+  /* ── FEATURES STRIP ── */
+  .features-strip {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 0; border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    background: var(--bg2);
+  }
+  .feature-item {
+    display: flex; align-items: flex-start; gap: .8rem;
+    padding: 1.8rem 2rem;
+    border-right: 1px solid var(--border);
+  }
+  .feature-item:last-child { border-right: none; }
+  .feature-icon { font-size: 1.4rem; flex-shrink: 0; margin-top: 2px; }
+  .feature-title { font-weight: 700; font-size: .9rem; margin-bottom: .2rem; }
+  .feature-desc { font-size: .8rem; color: var(--muted); }
+
+  /* ── SECTION COMMON ── */
+  .section-label {
+    font-size: .72rem; font-weight: 700; letter-spacing: .15em;
+    color: var(--accent-light); text-transform: uppercase;
+    display: block; margin-bottom: .7rem; text-align: center;
+  }
+  .section-title {
+    font-family: var(--font-head);
+    font-size: clamp(1.6rem, 3vw, 2.4rem);
+    font-weight: 800; text-align: center; line-height: 1.2;
+    margin-bottom: .6rem;
+  }
+  .section-title .highlight { color: var(--accent-light); }
+  .section-subtitle { text-align: center; color: var(--muted); font-size: .95rem; margin-bottom: 3rem; }
+
+  /* ── SERVICES ── */
+  .services { padding: 80px 5%; background: var(--bg2); }
+
+  .services-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;
+  }
+
+  .service-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px; overflow: hidden;
+    display: grid; grid-template-columns: 1fr 1fr;
+    min-height: 320px;
+    transition: border-color .3s, transform .3s;
+  }
+  .service-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-4px);
+    box-shadow: 0 16px 40px rgba(79,70,229,.2);
+  }
+
+  .service-info { padding: 2rem; }
+  .service-icon {
+    width: 44px; height: 44px; background: rgba(79,70,229,.15);
+    border-radius: 10px; display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem; margin-bottom: 1rem;
+  }
+  .service-title { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; margin-bottom: .3rem; }
+  .service-subtitle { color: var(--accent-light); font-size: .82rem; font-weight: 600; margin-bottom: 1rem; }
+
+  .service-features { list-style: none; display: flex; flex-direction: column; gap: .5rem; margin-bottom: 1.4rem; }
+  .service-features li {
+    display: flex; align-items: flex-start; gap: .5rem;
+    font-size: .83rem; color: var(--muted); line-height: 1.4;
+  }
+  .service-features li::before {
+    content: '✓'; color: var(--green); font-weight: 700;
+    flex-shrink: 0; margin-top: 1px;
+  }
+
+  .link-ver-mais {
+    color: var(--accent-light); font-size: .85rem; font-weight: 600;
+    text-decoration: none; display: inline-flex; align-items: center; gap: .3rem;
+    transition: gap .2s;
+  }
+  .link-ver-mais:hover { gap: .6rem; }
+
+  .service-visual {
+    background: var(--bg3);
+    border-left: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    padding: 1.2rem;
+  }
+
+  /* mini menu mockup */
+  .mini-menu {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; width: 100%; max-width: 160px; overflow: hidden;
+    font-size: .65rem;
+  }
+  .mini-menu-tabs {
+    display: flex; background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .mini-tab { flex: 1; text-align: center; padding: 6px 4px; color: var(--muted); font-size: .6rem; cursor: pointer; }
+  .mini-tab.active { color: var(--accent-light); border-bottom: 2px solid var(--accent); }
+  .mini-menu-item {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+  .mini-menu-item .item-info .name { font-size: .65rem; font-weight: 600; }
+  .mini-menu-item .item-info .desc { font-size: .55rem; color: var(--muted); }
+  .mini-menu-item .price { color: var(--green); font-weight: 700; font-size: .65rem; }
+
+  /* mini booking mockup */
+  .mini-booking {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 10px; width: 100%; max-width: 160px; overflow: hidden;
+    padding: 10px;
+  }
+  .mini-booking .mb-title { font-family: var(--font-head); font-size: .72rem; font-weight: 700; margin-bottom: 6px; }
+  .mini-booking select {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    border-radius: 5px; color: var(--muted); font-size: .6rem; padding: 4px 6px;
+    margin-bottom: 6px;
+  }
+  .mini-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; margin-bottom: 6px; }
+  .mini-cal-day { text-align: center; font-size: .5rem; color: var(--muted); padding: 2px; border-radius: 3px; cursor: pointer; }
+  .mini-cal-day.active { background: var(--accent); color: #fff; }
+  .mini-cal-day.today { border: 1px solid var(--accent-light); color: var(--accent-light); }
+  .mini-time-row { display: flex; gap: 3px; margin-bottom: 6px; }
+  .mini-time { background: var(--bg); border: 1px solid var(--border); border-radius: 4px; padding: 3px 5px; font-size: .55rem; color: var(--muted); }
+  .mini-time.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .mini-confirm { width: 100%; background: var(--accent); color: #fff; border: none; border-radius: 5px; padding: 5px; font-size: .65rem; font-weight: 700; cursor: pointer; }
+
+  /* ── WHY US ── */
+  .why-us { padding: 80px 5%; background: var(--bg); }
+
+  .why-grid {
+    display: grid; grid-template-columns: repeat(5, 1fr); gap: 1.2rem;
+  }
+
+  .why-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 1.6rem 1.2rem;
+    transition: border-color .3s, transform .3s;
+  }
+  .why-card:hover { border-color: var(--accent); transform: translateY(-3px); }
+  .why-card .w-icon { font-size: 1.4rem; margin-bottom: .8rem; }
+  .why-card .w-title { font-weight: 700; font-size: .9rem; margin-bottom: .4rem; }
+  .why-card .w-desc { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+
+  /* ── PROJECTS ── */
+  .projects { padding: 80px 5%; background: var(--bg2); }
+
+  .projects-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.4rem;
+  }
+
+  .project-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; overflow: hidden;
+    transition: transform .3s, box-shadow .3s;
+  }
+  .project-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.5); }
+
+  .project-thumb {
+    height: 140px; display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .project-thumb-label {
+    font-family: var(--font-head); font-weight: 800;
+    font-size: 1rem; color: var(--white); z-index: 1;
+    text-align: center; line-height: 1.2;
+  }
+  .project-thumb-sub { font-size: .65rem; color: rgba(255,255,255,.7); text-align: center; }
+  .project-thumb .ext-icon {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(0,0,0,.4); border-radius: 5px; padding: 3px 6px;
+    font-size: .7rem;
+  }
+
+  .project-thumb-1 { background: linear-gradient(135deg, #1a0a00, #3d1500); }
+  .project-thumb-2 { background: linear-gradient(135deg, #001a0a, #003d15); }
+  .project-thumb-3 { background: linear-gradient(135deg, #0a001a, #200040); }
+  .project-thumb-4 { background: linear-gradient(135deg, #1a1000, #3d2800); }
+
+  .project-info { padding: 1rem 1.1rem 1.2rem; }
+  .project-name { font-weight: 700; font-size: .9rem; margin-bottom: .15rem; }
+  .project-type { font-size: .75rem; color: var(--muted); margin-bottom: .7rem; }
+  .project-link {
+    color: var(--accent-light); font-size: .8rem; font-weight: 600;
+    text-decoration: none; display: inline-flex; align-items: center; gap: .3rem;
+  }
+  .project-link:hover { gap: .6rem; }
+
+  /* ── CTA ── */
+  .cta {
+    padding: 70px 5%; background: var(--bg);
+    display: flex; align-items: center; justify-content: space-between; gap: 2rem;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+  .cta-text h2 {
+    font-family: var(--font-head); font-size: clamp(1.4rem, 2.5vw, 2rem);
+    font-weight: 800; margin-bottom: .5rem;
+  }
+  .cta-text p { color: var(--muted); font-size: .95rem; max-width: 420px; }
+  .cta-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .btn-outline {
+    display: inline-flex; align-items: center; gap: .4rem;
+    background: transparent; color: var(--text);
+    border: 1px solid var(--border); border-radius: 9px;
+    padding: .75rem 1.6rem; font-size: .95rem; font-weight: 600;
+    cursor: pointer; text-decoration: none;
+    transition: border-color .2s, transform .15s;
+  }
+  .btn-outline:hover { border-color: var(--accent-light); transform: translateY(-1px); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--bg2); border-top: 1px solid var(--border);
+    text-align: center; padding: 2rem 5%;
+    color: var(--muted); font-size: .8rem;
+  }
+  footer strong { color: var(--text); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; padding: 50px 5% 40px; min-height: auto; }
+    .hero-visuals { display: none; }
+    .features-strip { grid-template-columns: 1fr 1fr; }
+    .feature-item:nth-child(2) { border-right: none; }
+    .services-grid { grid-template-columns: 1fr; }
+    .service-card { grid-template-columns: 1fr; }
+    .service-visual { min-height: 200px; border-left: none; border-top: 1px solid var(--border); }
+    .why-grid { grid-template-columns: 1fr 1fr; }
+    .projects-grid { grid-template-columns: 1fr 1fr; }
+    .cta { flex-direction: column; text-align: center; }
+    .cta-text p { margin: 0 auto; }
+    .nav-links { display: none; }
+  }
+  @media (max-width: 600px) {
+    .features-strip { grid-template-columns: 1fr; }
+    .feature-item { border-right: none; border-bottom: 1px solid var(--border); }
+    .why-grid { grid-template-columns: 1fr; }
+    .projects-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ── ANIMATIONS ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .hero-badge   { animation: fadeUp .5s ease both; }
+  .hero h1      { animation: fadeUp .6s .1s ease both; }
+  .hero p       { animation: fadeUp .6s .2s ease both; }
+  .hero-ctas    { animation: fadeUp .6s .3s ease both; }
+  .hero-visuals { animation: fadeUp .8s .4s ease both; }
 </style>
 </head>
 <body>
-<h1>Orbe de Partículas</h1>
-<div class="stage"><canvas id="c"></canvas></div>
 
-<div class="panel">
-  <div class="panel-full">
-    <label>Modelo</label>
-    <div class="seg" id="modelSeg">
-      <!-- original 6 -->
-      <button data-model="nebula"      class="active">☁ Nebulosa</button>
-      <button data-model="sphere">⬤ Esfera</button>
-      <button data-model="ring">◎ Anillo</button>
-      <button data-model="galaxy">✦ Galaxia</button>
-      <button data-model="vortex">⟳ Vórtex</button>
-      <button data-model="dna">⌇ DNA</button>
-      <!-- geométricas -->
-      <button data-model="icosahedron">⬡ Icosaedro</button>
-      <button data-model="octahedron">◈ Octaedro</button>
-      <button data-model="dodecahedron">⬠ Dodecaedro</button>
-      <button data-model="pyramid">▲ Pirámide</button>
-      <!-- fluidos -->
-      <button data-model="wave">🌊 Ola</button>
-      <button data-model="drop">💧 Gota</button>
-      <button data-model="bubbles">🫧 Burbujas</button>
-      <button data-model="snail">🌀 Caracol</button>
-      <!-- astrofísica -->
-      <button data-model="blackhole">🌌 Ag. Negro</button>
-      <button data-model="comet">☄ Cometa</button>
-      <button data-model="planet">🪐 Planeta</button>
-      <button data-model="supernova">✨ Supernova</button>
-      <!-- matemáticas -->
-      <button data-model="klein">∞ Klein</button>
-      <button data-model="lemniscate">〜 Lemniscata</button>
-      <button data-model="rose">❋ Rosa 3D</button>
-      <button data-model="trefoil">📐 Trefoil</button>
-      <!-- dinámicas -->
-      <button data-model="atom">⚛ Átomo</button>
-      <button data-model="neural">🕸 Neuronal</button>
-      <button data-model="tornado">🌪 Tornado</button>
+<!-- NAV -->
+<nav>
+  <a href="#" class="logo">&lt;/&gt; <span id="cms-logo1">tecno</span><span id="cms-logo2" style="color:var(--accent-light)">ARG</span></a>
+  <ul class="nav-links">
+    <li><a href="#" class="active">Início</a></li>
+    <li><a href="#servicos">Serviços ▾</a></li>
+    <li><a href="#beneficios">Benefícios</a></li>
+    <li><a href="#trabalhos">Trabalhos</a></li>
+    <li><a href="#precos">Preços</a></li>
+    <li><a href="#sobre">Sobre Nós</a></li>
+    <li><a href="#contato">Contato</a></li>
+  </ul>
+  <a id="cms-wa-link" href="https://wa.me/5491100000000" class="btn-whatsapp">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <span id="cms-wa-text">Falar pelo WhatsApp</span>
+  </a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+<canvas id="universe-canvas"></canvas>
+  <div class="hero-content">
+    <span class="hero-badge" id="cms-hero-badge">SOLUÇÕES WEB QUE POTENCIALIZAM SEU NEGÓCIO</span>
+    <h1><span id="cms-h-title1">Sites inteligentes</span><br><span id="cms-h-title2">para negócios que</span><br>querem <span class="highlight" id="cms-h-title3">crescer</span></h1>
+    <p id="cms-hero-desc">Criamos sites modernos, rápidos e fáceis de usar que ajudam você a atrair mais clientes, vender mais e organizar melhor o seu negócio.</p>
+    <div class="hero-ctas">
+      <a href="#servicos" class="btn-primary" id="cms-hero-btn1">Ver serviços →</a>
+      <a href="#trabalhos" class="btn-secondary" id="cms-hero-btn2">Ver exemplos →</a>
     </div>
   </div>
 
-  <div class="divider"></div>
+  <div class="hero-visuals">
+    <!-- Ambient glow orbs -->
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
 
-  <div class="panel-full">
-    <label>Zodíaco</label>
-    <div class="seg" id="zodSeg">
-      <button data-model="aries">♈ Aries</button>
-      <button data-model="taurus">♉ Tauro</button>
-      <button data-model="gemini">♊ Géminis</button>
-      <button data-model="cancer">♋ Cáncer</button>
-      <button data-model="leo">♌ Leo</button>
-      <button data-model="virgo">♍ Virgo</button>
-      <button data-model="libra">♎ Libra</button>
-      <button data-model="scorpio">♏ Escorpio</button>
-      <button data-model="sagittarius">♐ Sagitario</button>
-      <button data-model="capricorn">♑ Capricornio</button>
-      <button data-model="aquarius">♒ Acuario</button>
-      <button data-model="pisces">♓ Piscis</button>
-    </div>
+    <!-- Floating particles -->
+    <div class="particle p1"></div>
+    <div class="particle p2"></div>
+    <div class="particle p3"></div>
+    <div class="particle p4"></div>
+    <div class="particle p5"></div>
+
+    <!-- 3D floating cards scene -->
+    <div class="cards-3d">
+
+      <!-- Card 1: Cardápio Digital (background) -->
+      <div class="hcard hcard-menu">
+        <div class="hcard-head">
+          <div class="hcard-logo">CARDÁPIO <span class="dot">●</span> DIGITAL</div>
+          <div class="hcard-badge">AO VIVO</div>
+        </div>
+        <div class="hcard-body">
+          <div class="menu-row">
+            <div>
+              <div class="mname">Hambúrguer Artesanal</div>
+              <div class="mdesc">180g carne, queijo, alface</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:5px;">
+              <span class="mbadge">+ pedido</span>
+              <span class="mprice">R$38</span>
+            </div>
+          </div>
+          <div class="menu-row">
+            <div>
+              <div class="mname">Salmão Grelhado</div>
+              <div class="mdesc">Com legumes e molho especial</div>
+            </div>
+            <span class="mprice">R$52</span>
+          </div>
+          <div class="menu-row">
+            <div>
+              <div class="mname">Limonada Suíça</div>
+              <div class="mdesc">Leite condensado, limão</div>
+            </div>
+            <span class="mprice">R$14</span>
+          </div>
+          <div class="prog-bar-wrap"><div class="prog-bar"></div></div>
+          <div style="font-size:.55rem;color:var(--muted);margin-top:3px;">23 pedidos hoje</div>
+        </div>
+      </div>
+
+      <!-- Card 2: Notification (top right, floating) -->
+      <div class="hcard hcard-notif">
+        <div class="notif-inner">
+          <div class="notif-icon">✅</div>
+          <div class="notif-text">
+            <div class="nt">Novo agendamento!</div>
+            <div class="ns">Maria S. — Musculação às 10:00</div>
+          </div>
+          <div class="notif-time">agora</div>
+        </div>
+      </div>
+
+      <!-- Card 3: Agendamento Online (front right) -->
+      <div class="hcard hcard-booking">
+        <div class="hcard-head">
+          <div class="hcard-logo">AGENDAMENTO</div>
+          <div class="hcard-badge">ONLINE 24/7</div>
+        </div>
+        <div class="hcard-body">
+          <div class="booking-service-row">
+            <div>
+              <div class="sname">Musculação</div>
+              <div class="sdur">60 minutos</div>
+            </div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent-light)" stroke-width="2"><path d="M19 9l-7 7-7-7"/></svg>
+          </div>
+          <div style="font-size:.6rem;color:var(--muted);margin-bottom:5px;">Horários disponíveis — quinta-feira</div>
+          <div class="time-chips">
+            <div class="tchip">08:00</div>
+            <div class="tchip on">09:00</div>
+            <div class="tchip">10:00</div>
+            <div class="tchip">11:00</div>
+            <div class="tchip">16:00</div>
+            <div class="tchip">17:00</div>
+          </div>
+          <button class="book-btn">CONFIRMAR HORÁRIO</button>
+        </div>
+      </div>
+
+      <!-- Card 4: Stats mini (left) -->
+      <div class="hcard hcard-stats">
+        <div class="stat-inner">
+          <div class="stat-label">Clientes este mês</div>
+          <div class="stat-value" id="stat-counter">0</div>
+          <div class="stat-trend">↑ +34% vs mês anterior</div>
+        </div>
+      </div>
+
+    </div><!-- end cards-3d -->
   </div>
 
-  <div class="panel-full">
-    <label>Icónicas</label>
-    <div class="seg" id="iconSeg">
-      <button data-model="orion">⭐ Orión</button>
-      <button data-model="ursamajor">🐻 Osa Mayor</button>
-      <button data-model="ursaminor">🐾 Osa Menor</button>
-      <button data-model="crux">✚ Cruz del Sur</button>
-      <button data-model="cassiopeia">Ш Casiopea</button>
-      <button data-model="andromeda">🌌 Andrómeda</button>
-      <button data-model="pegasus">🐴 Pegaso</button>
-      <button data-model="hercules">💪 Hércules</button>
-    </div>
-  </div>
+  <script>
+    // Animated counter
+    (function(){
+      var el = document.getElementById('stat-counter');
+      var target = 847; var current = 0;
+      var step = Math.ceil(target / 60);
+      var interval = setInterval(function(){
+        current = Math.min(current + step, target);
+        el.textContent = current.toLocaleString('pt-BR');
+        if(current >= target) clearInterval(interval);
+      }, 30);
+    })();
 
-  <div class="divider"></div>
+    // Time chip interactive toggle
+    document.querySelectorAll('.tchip').forEach(function(chip){
+      chip.addEventListener('click', function(){
+        document.querySelectorAll('.tchip').forEach(function(c){ c.classList.remove('on'); });
+        chip.classList.add('on');
+      });
+    });
 
-  <div class="panel-full">
-    <label>Paleta</label>
-    <div class="swatches" id="swatches">
-      <div class="swatch active" data-ca="#6c63ff" data-cb="#a855f7" data-cc="#06b6d4" style="background:linear-gradient(135deg,#6c63ff,#a855f7,#06b6d4)" title="Cosmos"></div>
-      <div class="swatch" data-ca="#00cfff" data-cb="#0066ff" data-cc="#7b2fff" style="background:linear-gradient(135deg,#00cfff,#0066ff,#7b2fff)" title="Nebulosa"></div>
-      <div class="swatch" data-ca="#ff2fa0" data-cb="#7b2fff" data-cc="#00cfff" style="background:linear-gradient(135deg,#ff2fa0,#7b2fff,#00cfff)" title="Aurora"></div>
-      <div class="swatch" data-ca="#ff6b00" data-cb="#ff0050" data-cc="#ffe200" style="background:linear-gradient(135deg,#ff6b00,#ff0050,#ffe200)" title="Lava"></div>
-      <div class="swatch" data-ca="#39ff14" data-cb="#00ff88" data-cc="#00e5ff" style="background:linear-gradient(135deg,#39ff14,#00ff88,#00e5ff)" title="Matrix"></div>
-      <div class="swatch" data-ca="#ffd700" data-cb="#ff8c00" data-cc="#ff4500" style="background:linear-gradient(135deg,#ffd700,#ff8c00,#ff4500)" title="Solar"></div>
-      <div class="swatch" data-ca="#ffffff" data-cb="#c0d8ff" data-cc="#80a0ff" style="background:linear-gradient(135deg,#fff,#c0d8ff,#80a0ff)" title="Glaciar"></div>
-      <div class="swatch" data-ca="#ff1493" data-cb="#ff69b4" data-cc="#ff00ff" style="background:linear-gradient(135deg,#ff1493,#ff69b4,#ff00ff)" title="Sakura"></div>
-      <div class="swatch" data-ca="#00ff88" data-cb="#00ccff" data-cc="#aa00ff" style="background:linear-gradient(135deg,#00ff88,#00ccff,#aa00ff)" title="Neon"></div>
-      <div class="swatch" data-ca="#ff4400" data-cb="#ff9900" data-cc="#ffee00" style="background:linear-gradient(135deg,#ff4400,#ff9900,#ffee00)" title="Fuego"></div>
-    </div>
-  </div>
+    // Subtle mouse parallax on hero
+    var scene = document.querySelector('.cards-3d');
+    if(scene) {
+      document.querySelector('.hero').addEventListener('mousemove', function(e){
+        var rect = this.getBoundingClientRect();
+        var cx = rect.left + rect.width/2;
+        var cy = rect.top + rect.height/2;
+        var rx = ((e.clientY - cy) / rect.height) * 10;
+        var ry = ((e.clientX - cx) / rect.width) * -10;
+        scene.style.transform = 'rotateX('+(4+rx*.4)+'deg) rotateY('+(-8+ry*.4)+'deg)';
+      });
+      document.querySelector('.hero').addEventListener('mouseleave', function(){
+        scene.style.transform = '';
+      });
+    }
+  </script>
+</section>
 
-  <div>
-    <label>Color A</label>
-    <div class="crow"><input type="color" id="ca" value="#6c63ff"><span>Principal</span></div>
-  </div>
-  <div>
-    <label>Color B</label>
-    <div class="crow"><input type="color" id="cb" value="#a855f7"><span>Medio</span></div>
-  </div>
-  <div>
-    <label>Color C</label>
-    <div class="crow"><input type="color" id="cc" value="#06b6d4"><span>Acento</span></div>
-  </div>
-  <div>
-    <label>Tamaño punto <span class="sv" id="dotV">2.0</span></label>
-    <input type="range" id="dotR" min="0.4" max="6" step="0.1" value="2.0">
-  </div>
-
-  <div class="divider"></div>
-
-  <div>
-    <label>Partículas <span class="sv" id="cntV">2500</span></label>
-    <input type="range" id="cntR" min="200" max="6000" step="100" value="2500">
-  </div>
-  <div>
-    <label>Velocidad <span class="sv" id="spdV">1.0×</span></label>
-    <input type="range" id="spdR" min="0.05" max="5" step="0.05" value="1">
-  </div>
-  <div>
-    <label>Radio <span class="sv" id="radV">120</span></label>
-    <input type="range" id="radR" min="60" max="155" value="120">
-  </div>
-  <div>
-    <label>Difusión <span class="sv" id="fuzzV">0.28</span></label>
-    <input type="range" id="fuzzR" min="0" max="1" step="0.01" value="0.28">
-  </div>
-  <div>
-    <label>Glow <span class="sv" id="glwV">22</span></label>
-    <input type="range" id="glwR" min="0" max="65" value="22">
-  </div>
-  <div>
-    <label>Opacidad <span class="sv" id="opV">0.85</span></label>
-    <input type="range" id="opR" min="0.1" max="1" step="0.01" value="0.85">
-  </div>
+<!-- FEATURES STRIP -->
+<div class="features-strip" id="cms-features-strip">
 </div>
 
+<!-- SERVICES -->
+<section class="services" id="servicos">
+  <span class="section-label" id="cms-sv-label">Serviços</span>
+  <h2 class="section-title" id="cms-sv-title">Soluções web para cada tipo de negócio</h2>
+  <p class="section-subtitle" id="cms-sv-subtitle">Desenvolvemos sites sob medida de acordo com suas necessidades.</p>
+
+  <div class="services-grid">
+    <!-- Card 1: Cardápio Digital -->
+    <div class="service-card">
+      <div class="service-info">
+        <div class="service-icon">🍽️</div>
+        <div class="service-title">Site de Cardápio Digital</div>
+        <div class="service-subtitle">para Restaurantes e Bares</div>
+        <ul class="service-features">
+          <li>Mostre seu cardápio de forma atraente e profissional</li>
+          <li>Seus clientes pedem direto pelo celular</li>
+          <li>Atualize preços e produtos na hora</li>
+          <li>Mais vendas, melhor experiência</li>
+        </ul>
+        <a href="#contato" class="link-ver-mais">Ver mais →</a>
+      </div>
+      <div class="service-visual">
+        <div class="mini-menu">
+          <div class="mini-menu-tabs">
+            <div class="mini-tab active">ENTRADAS</div>
+            <div class="mini-tab">PRATOS</div>
+            <div class="mini-tab">BEBIDAS</div>
+          </div>
+          <div class="mini-menu-item">
+            <div class="item-info">
+              <div class="name">Bruschetta Clássica</div>
+              <div class="desc">Tomate, manjericão, azeite</div>
+            </div>
+            <div class="price">R$22</div>
+          </div>
+          <div class="mini-menu-item">
+            <div class="item-info">
+              <div class="name">Hambúrguer Artesanal</div>
+              <div class="desc">180g de carne, queijo, alface</div>
+            </div>
+            <div class="price">R$38</div>
+          </div>
+          <div class="mini-menu-item">
+            <div class="item-info">
+              <div class="name">Salmão Grelhado</div>
+              <div class="desc">Com legumes e molho</div>
+            </div>
+            <div class="price">R$52</div>
+          </div>
+          <div class="mini-menu-item">
+            <div class="item-info">
+              <div class="name">Limonada Suíça</div>
+              <div class="desc">Com leite condensado</div>
+            </div>
+            <div class="price">R$14</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Card 2: Agendamento Online -->
+    <div class="service-card">
+      <div class="service-info">
+        <div class="service-icon">📅</div>
+        <div class="service-title">Site de Agendamento Online</div>
+        <div class="service-subtitle">para Academias, Estéticas e mais</div>
+        <ul class="service-features">
+          <li>Seus clientes agendam 24/7</li>
+          <li>Calendário automático sem conflitos</li>
+          <li>Lembretes por WhatsApp ou e-mail</li>
+          <li>Menos cancelamentos, mais organização</li>
+        </ul>
+        <a href="#contato" class="link-ver-mais">Ver mais →</a>
+      </div>
+      <div class="service-visual">
+        <div class="mini-booking">
+          <div class="mb-title">Agendar horário</div>
+          <select><option>Musculação 60 min</option></select>
+          <select><option>24/05/2024</option></select>
+          <div class="mini-cal">
+            <div class="mini-cal-day">S</div><div class="mini-cal-day">T</div>
+            <div class="mini-cal-day">Q</div><div class="mini-cal-day">Q</div>
+            <div class="mini-cal-day">S</div><div class="mini-cal-day">S</div>
+            <div class="mini-cal-day">D</div>
+            <div class="mini-cal-day">6</div><div class="mini-cal-day">7</div>
+            <div class="mini-cal-day">8</div><div class="mini-cal-day">9</div>
+            <div class="mini-cal-day">10</div><div class="mini-cal-day">11</div>
+            <div class="mini-cal-day">12</div>
+            <div class="mini-cal-day today">13</div><div class="mini-cal-day">14</div>
+            <div class="mini-cal-day active">15</div><div class="mini-cal-day">16</div>
+            <div class="mini-cal-day">17</div><div class="mini-cal-day">18</div>
+            <div class="mini-cal-day">19</div>
+          </div>
+          <div class="mini-time-row">
+            <div class="mini-time">08:00</div>
+            <div class="mini-time active">09:00</div>
+            <div class="mini-time">10:00</div>
+          </div>
+          <div class="mini-time-row">
+            <div class="mini-time">11:00</div>
+            <div class="mini-time">16:00</div>
+            <div class="mini-time">17:00</div>
+          </div>
+          <button class="mini-confirm">CONFIRMAR HORÁRIO</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY US -->
+<section class="why-us" id="beneficios">
+  <span class="section-label" id="cms-b-label">Por que nos escolher?</span>
+  <h2 class="section-title" id="cms-b-title">Mais que um site, uma ferramenta para crescer</h2>
+  <p class="section-subtitle" style="margin-bottom:2.5rem;"></p>
+  <div class="why-grid" id="cms-why-grid">
+    <div class="why-card">
+      <div class="w-icon">⚡</div>
+      <div class="w-title">Rápido e otimizado</div>
+      <div class="w-desc">Carregamento rápido para melhor experiência e melhor posicionamento no Google.</div>
+    </div>
+    <div class="why-card">
+      <div class="w-icon">✏️</div>
+      <div class="w-title">Design profissional</div>
+      <div class="w-desc">Sites modernos que transmitem confiança e aumentam suas vendas.</div>
+    </div>
+    <div class="why-card">
+      <div class="w-icon">⚙️</div>
+      <div class="w-title">Fácil de administrar</div>
+      <div class="w-desc">Painel intuitivo para você editar seu conteúdo quando quiser.</div>
+    </div>
+    <div class="why-card">
+      <div class="w-icon">🤝</div>
+      <div class="w-title">Acompanhamento real</div>
+      <div class="w-desc">Te assessoramos e acompanhamos em todo o processo e depois também.</div>
+    </div>
+    <div class="why-card">
+      <div class="w-icon">🎯</div>
+      <div class="w-title">Feito sob medida</div>
+      <div class="w-desc">Cada site é único, adaptado à sua marca e aos seus objetivos de negócio.</div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section class="projects" id="trabalhos">
+  <span class="section-label" id="cms-p-label">Trabalhos Recentes</span>
+  <h2 class="section-title" id="cms-p-title">Alguns projetos que já estão gerando resultados</h2>
+  <p class="section-subtitle" style="margin-bottom:2.5rem;"></p>
+  <div class="projects-grid" id="cms-projects-grid">
+    <div class="project-card">
+      <div class="project-thumb project-thumb-1">
+        <div>
+          <div class="project-thumb-label">🍔 LA ESQUINA</div>
+          <div class="project-thumb-sub">Sabor, qualidade e boa companhia</div>
+        </div>
+        <span class="ext-icon">↗</span>
+      </div>
+      <div class="project-info">
+        <div class="project-name">La Esquina Resto & Bar</div>
+        <div class="project-type">Site de Cardápio Digital</div>
+        <a href="#" class="project-link">Ver projeto →</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-thumb project-thumb-2">
+        <div>
+          <div class="project-thumb-label">ENERGY GYM</div>
+          <div class="project-thumb-sub">MAIS FORTE QUE SUAS DESCULPAS</div>
+        </div>
+        <span class="ext-icon">↗</span>
+      </div>
+      <div class="project-info">
+        <div class="project-name">Energy Gym</div>
+        <div class="project-type">Site de Agendamento Online</div>
+        <a href="#" class="project-link">Ver projeto →</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-thumb project-thumb-3">
+        <div>
+          <div class="project-thumb-label">✨ Glow Estética</div>
+          <div class="project-thumb-sub">Seu momento de bem-estar</div>
+        </div>
+        <span class="ext-icon">↗</span>
+      </div>
+      <div class="project-info">
+        <div class="project-name">Glow Estética</div>
+        <div class="project-type">Site de Agendamento Online</div>
+        <a href="#" class="project-link">Ver projeto →</a>
+      </div>
+    </div>
+    <div class="project-card">
+      <div class="project-thumb project-thumb-4">
+        <div>
+          <div class="project-thumb-label">THE BARBER</div>
+          <div class="project-thumb-sub">ESTILO &amp; PRECISÃO</div>
+        </div>
+        <span class="ext-icon">↗</span>
+      </div>
+      <div class="project-info">
+        <div class="project-name">The Barber</div>
+        <div class="project-type">Site de Agendamento Online</div>
+        <a href="#" class="project-link">Ver projeto →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta" id="contato">
+  <div class="cta-text">
+    <h2 id="cms-cta-title">Pronto para levar seu negócio ao próximo nível?</h2>
+    <p id="cms-cta-desc">Conta sua ideia e criamos juntos o site que seu negócio precisa. Sem compromisso, te assessoramos.</p>
+  </div>
+  <div class="cta-buttons">
+    <a id="cms-cta-btn1-link" href="https://wa.me/5491100000000" class="btn-primary">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <span id="cms-cta-btn1">Falar pelo WhatsApp</span>
+    </a>
+    <a href="#servicos" class="btn-outline" id="cms-cta-btn2">Quero mais informações</a>
+  </div>
+</section>
+
+<footer>
+  <p id="cms-footer-text">© 2024 <strong>tecnoARG</strong> – Todos os direitos reservados. Feito com ❤️ para negócios que querem crescer.</p>
+</footer>
+
+
 <script>
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-const $ = id => document.getElementById(id);
-const DPR = Math.min(window.devicePixelRatio||1, 2);
+(function(){
+  var canvas = document.getElementById('universe-canvas');
+  var ctx = canvas.getContext('2d');
 
-const cfg = {
-  model:'nebula', ca:[108,99,255], cb:[168,85,247], cc:[6,182,212],
-  dot:2.0, count:2500, speed:1.0, radius:120, fuzz:0.28, glow:22, opacity:0.85
-};
-
-let pts = [], angle = 0, time = 0, raf;
-
-// ── Canvas ──
-function setupCanvas() {
-  const S = (cfg.radius + 62) * 2;
-  canvas.width  = S * DPR;
-  canvas.height = S * DPR;
-  canvas.style.width  = S + 'px';
-  canvas.style.height = S + 'px';
-  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-}
-
-// ── Utils ──
-function hexRgb(h) { return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
-function ptColor(t, a) {
-  let r,g,b;
-  if (t < .5) { const s=t*2; r=cfg.ca[0]*(1-s)+cfg.cb[0]*s; g=cfg.ca[1]*(1-s)+cfg.cb[1]*s; b=cfg.ca[2]*(1-s)+cfg.cb[2]*s; }
-  else        { const s=(t-.5)*2; r=cfg.cb[0]*(1-s)+cfg.cc[0]*s; g=cfg.cb[1]*(1-s)+cfg.cc[1]*s; b=cfg.cb[2]*(1-s)+cfg.cc[2]*s; }
-  return `rgba(${r|0},${g|0},${b|0},${Math.min(1,Math.max(0,a)).toFixed(3)})`;
-}
-function rnd() { return Math.random(); }
-function rndN() { return (rnd()+rnd()+rnd()-1.5)*2; } // approx normal
-
-// pt: [x,y,z, phase, driftAmp, tc, wSpd, extra...]
-function pt(x,y,z,tc) {
-  return [x,y,z, rnd()*Math.PI*2, cfg.radius*.035*(rnd()*.8+.2), tc, .4+rnd()*.6];
-}
-
-// ── GENERATORS ──
-function genNebula(n,R) {
-  const phi=Math.PI*(3-Math.sqrt(5)), out=[];
-  for(let i=0;i<n;i++){
-    const yi=1-(i/(n-1))*2, ri=Math.sqrt(Math.max(0,1-yi*yi)), th=phi*i;
-    const f=1+(rnd()-.5)*2*cfg.fuzz;
-    out.push(pt(ri*Math.cos(th)*R*f, yi*R*f, ri*Math.sin(th)*R*f, yi*.5+.5));
+  function resize(){
+    canvas.width = canvas.offsetWidth;
+    canvas.height = canvas.offsetHeight;
   }
-  return out;
-}
+  resize();
+  window.addEventListener('resize', function(){ resize(); initStars(); });
 
-function genSphere(n,R) {
-  const phi=Math.PI*(3-Math.sqrt(5)), out=[];
-  for(let i=0;i<n;i++){
-    const yi=1-(i/(n-1))*2, ri=Math.sqrt(Math.max(0,1-yi*yi)), th=phi*i;
-    out.push(pt(ri*Math.cos(th)*R, yi*R, ri*Math.sin(th)*R, yi*.5+.5));
-  }
-  return out;
-}
+  var W, H, stars = [], lines = [], nebulas = [];
+  var mouse = { x: -9999, y: -9999 };
 
-function genRing(n,R) {
-  const out=[], mR=R*.72, tR=R*.22;
-  for(let i=0;i<n;i++){
-    const u=(i/n)*Math.PI*2, v=rnd()*Math.PI*2, f=1+(rnd()-.5)*cfg.fuzz*.5;
-    out.push(pt((mR+tR*Math.cos(v)*f)*Math.cos(u), tR*Math.sin(v)*f, (mR+tR*Math.cos(v)*f)*Math.sin(u), Math.cos(v)*.5+.5));
-  }
-  return out;
-}
+  document.querySelector('.hero').addEventListener('mousemove', function(e){
+    var r = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - r.left;
+    mouse.y = e.clientY - r.top;
+  });
 
-function genGalaxy(n,R) {
-  const out=[], arms=3;
-  for(let i=0;i<n;i++){
-    const arm=(i%arms)*(Math.PI*2/arms), t=Math.pow(rnd(),.6);
-    const a=arm+t*Math.PI*3.5+(rnd()-.5)*.9, r=t*R*(1+(rnd()-.5)*cfg.fuzz*.5);
-    out.push(pt(Math.cos(a)*r, (rnd()-.5)*R*.14*(1-t), Math.sin(a)*r, t));
-  }
-  return out;
-}
+  // Color palette
+  var starColors = [
+    'rgba(255,255,255,',
+    'rgba(180,170,255,',
+    'rgba(120,180,255,',
+    'rgba(255,200,120,',
+    'rgba(160,240,200,'
+  ];
 
-function genVortex(n,R) {
-  const out=[];
-  for(let i=0;i<n;i++){
-    const t=i/n, a=t*Math.PI*2*5, r=t*R*(1+(rnd()-.5)*cfg.fuzz);
-    out.push(pt(Math.cos(a)*r*(rnd()*.3+.85), (1-t*2)*R*.9+(rnd()-.5)*R*.08, Math.sin(a)*r*(rnd()*.3+.85), t));
-  }
-  return out;
-}
-
-function genDNA(n,R) {
-  const out=[], h=R*1.7, hR=R*.4;
-  for(let i=0;i<n;i++){
-    const t=i/n, y=(t-.5)*h, a=t*Math.PI*9, type=i%4;
-    let x,z;
-    if(type<2){ const s=type===0?0:Math.PI, f=1+(rnd()-.5)*cfg.fuzz*.5; x=Math.cos(a+s)*hR*f; z=Math.sin(a+s)*hR*f; }
-    else { const l=.15+rnd()*.7; x=Math.cos(a)*hR*(1-l)+Math.cos(a+Math.PI)*hR*l; z=Math.sin(a)*hR*(1-l)+Math.sin(a+Math.PI)*hR*l; }
-    out.push(pt(x, y, z, t));
-  }
-  return out;
-}
-
-// ── GEOMÉTRICAS ──
-function sampleFace(v0,v1,v2,n,R) {
-  const pts=[];
-  for(let i=0;i<n;i++){
-    let a=rnd(),b=rnd(); if(a+b>1){a=1-a;b=1-b;}
-    const c=1-a-b, f=1+(rnd()-.5)*cfg.fuzz*.3;
-    pts.push([
-      (v0[0]*a+v1[0]*b+v2[0]*c)*R*f,
-      (v0[1]*a+v1[1]*b+v2[1]*c)*R*f,
-      (v0[2]*a+v1[2]*b+v2[2]*c)*R*f,
-      rnd()*Math.PI*2, R*.02, a, .4+rnd()*.6
-    ]);
-  }
-  return pts;
-}
-
-function genIcosahedron(n,R) {
-  const t=(1+Math.sqrt(5))/2, s=1/Math.sqrt(1+t*t);
-  const v=[ [-1,t,0],[1,t,0],[-1,-t,0],[1,-t,0],[0,-1,t],[0,1,t],[0,-1,-t],[0,1,-t],[t,0,-1],[t,0,1],[-t,0,-1],[-t,0,1] ].map(p=>p.map(x=>x*s));
-  const faces=[[0,11,5],[0,5,1],[0,1,7],[0,7,10],[0,10,11],[1,5,9],[5,11,4],[11,10,2],[10,7,6],[7,1,8],[3,9,4],[3,4,2],[3,2,6],[3,6,8],[3,8,9],[4,9,5],[2,4,11],[6,2,10],[8,6,7],[9,8,1]];
-  const out=[], perFace=Math.ceil(n/faces.length);
-  faces.forEach(([a,b,c])=>out.push(...sampleFace(v[a],v[b],v[c],perFace,R)));
-  return out.slice(0,n);
-}
-
-function genOctahedron(n,R) {
-  const v=[[1,0,0],[-1,0,0],[0,1,0],[0,-1,0],[0,0,1],[0,0,-1]];
-  const faces=[[0,2,4],[0,4,3],[0,3,5],[0,5,2],[1,4,2],[1,3,4],[1,5,3],[1,2,5]];
-  const out=[], perFace=Math.ceil(n/faces.length);
-  faces.forEach(([a,b,c])=>out.push(...sampleFace(v[a],v[b],v[c],perFace,R)));
-  return out.slice(0,n);
-}
-
-function genDodecahedron(n,R) {
-  const phi=(1+Math.sqrt(5))/2;
-  const v=[];
-  [1,-1].forEach(s1=>[1,-1].forEach(s2=>[1,-1].forEach(s3=>v.push([s1,s2,s3]))));
-  [0,1,2].forEach(ax=>[1,-1].forEach(s1=>[1,-1].forEach(s2=>{
-    const p=[0,0,0]; p[ax]=s1*(phi+1)/phi; p[(ax+1)%3]=s2/phi; p[(ax+2)%3]=0;
-    v.push(p);
-  })));
-  // sample random triangles from center to each vertex
-  const out=[];
-  for(let i=0;i<n;i++){
-    const vi=v[Math.floor(rnd()*v.length)];
-    const vj=v[Math.floor(rnd()*v.length)];
-    const lp=rnd(), f=1+(rnd()-.5)*cfg.fuzz*.3;
-    const norm=Math.sqrt(vi[0]*vi[0]+vi[1]*vi[1]+vi[2]*vi[2])||1;
-    const x=(vi[0]*(1-lp)+vj[0]*lp)/norm*R*f;
-    const y=(vi[1]*(1-lp)+vj[1]*lp)/norm*R*f;
-    const z=(vi[2]*(1-lp)+vj[2]*lp)/norm*R*f;
-    out.push([x,y,z, rnd()*Math.PI*2, R*.02, lp, .4+rnd()*.6]);
-  }
-  return out;
-}
-
-function genPyramid(n,R) {
-  const out=[], apex=[0,R*.9,0];
-  const base=[[R*.8,-R*.5,0],[0,-R*.5,R*.8],[-R*.8,-R*.5,0],[0,-R*.5,-R*.8]];
-  const faces=[[apex,base[0],base[1]],[apex,base[1],base[2]],[apex,base[2],base[3]],[apex,base[3],base[0]],[base[0],base[1],base[2]],[base[0],base[2],base[3]]];
-  const perFace=Math.ceil(n/faces.length);
-  faces.forEach(([a,b,c])=>out.push(...sampleFace(a.map(v=>v/R),b.map(v=>v/R),c.map(v=>v/R),perFace,R)));
-  return out.slice(0,n);
-}
-
-// ── FLUIDOS ──
-function genWave(n,R) {
-  const out=[];
-  for(let i=0;i<n;i++){
-    const u=(rnd()*2-1)*R, v=(rnd()*2-1)*R;
-    const dist=Math.sqrt(u*u+v*v)/R;
-    if(dist>1.05) { i--; continue; }
-    const wh=Math.sin(dist*Math.PI*3)*R*.22*(1-dist*.7);
-    const f=1+(rnd()-.5)*cfg.fuzz*.4;
-    out.push(pt(u*f, wh+(rnd()-.5)*R*.04, v*f, dist));
-  }
-  return out;
-}
-
-function genDrop(n,R) {
-  const out=[];
-  for(let i=0;i<n;i++){
-    const t=rnd(); // 0=bottom tip, 1=top
-    const yr=t*2-1; // -1..1
-    const bulge=t<.7 ? Math.sin(t/0.7*Math.PI) : (1-t)/.3;
-    const r=bulge*R*.72*(1+(rnd()-.5)*cfg.fuzz*.4);
-    const a=rnd()*Math.PI*2;
-    out.push(pt(Math.cos(a)*r, yr*R*.9, Math.sin(a)*r, t));
-  }
-  return out;
-}
-
-function genBubbles(n,R) {
-  const out=[];
-  const centers=[[0,0,0]];
-  for(let i=0;i<7;i++){
-    const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI, d=R*.68;
-    centers.push([Math.cos(el)*Math.cos(a)*d, Math.sin(el)*d, Math.cos(el)*Math.sin(a)*d]);
-  }
-  const radii=[R*.38,...Array(7).fill(0).map(()=>R*(.1+rnd()*.16))];
-  for(let i=0;i<n;i++){
-    const ci=i%centers.length, [cx,cy,cz]=centers[ci], r=radii[ci];
-    const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI;
-    const f=1+(rnd()-.5)*cfg.fuzz*.35;
-    out.push(pt(cx+Math.cos(el)*Math.cos(a)*r*f, cy+Math.sin(el)*r*f, cz+Math.cos(el)*Math.sin(a)*r*f, ci/centers.length));
-  }
-  return out;
-}
-
-function genSnail(n,R) {
-  const out=[];
-  for(let i=0;i<n;i++){
-    const t=rnd(), turns=4;
-    const a=t*Math.PI*2*turns;
-    const r=t*R*.9*(1+(rnd()-.5)*cfg.fuzz*.5);
-    const elev=Math.pow(t,1.5)*R*.75*(1+(rnd()-.5)*cfg.fuzz*.3);
-    const twist=t*Math.PI*1.5;
-    out.push(pt(Math.cos(a)*r, elev-R*.35, Math.sin(a)*r, t));
-  }
-  return out;
-}
-
-// ── ASTROFÍSICA ──
-function genBlackhole(n,R) {
-  const out=[];
-  for(let i=0;i<n;i++){
-    const t=rnd(), a=rnd()*Math.PI*2;
-    // disk concentrated around equator
-    const r=(R*.3+t*R*.7)*(1+(rnd()-.5)*cfg.fuzz*.3);
-    const y=(rnd()-.5)*R*.08*(1-t*.7);
-    out.push(pt(Math.cos(a)*r, y, Math.sin(a)*r, t));
-  }
-  return out;
-}
-
-function genComet(n,R) {
-  const out=[], headN=Math.floor(n*.3), tailN=n-headN;
-  for(let i=0;i<headN;i++){
-    const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI, r=rnd()*R*.25;
-    out.push(pt(Math.cos(el)*Math.cos(a)*r, Math.sin(el)*r+R*.2, Math.cos(el)*Math.sin(a)*r, rnd()*.4));
-  }
-  for(let i=0;i<tailN;i++){
-    const t=rnd(), spread=t*R*.55*(1+(rnd()-.5)*cfg.fuzz);
-    const a=rnd()*Math.PI*2;
-    out.push(pt(Math.cos(a)*spread*.25, -t*R*.85+R*.15, Math.sin(a)*spread, .4+t*.6));
-  }
-  return out;
-}
-
-function genPlanet(n,R) {
-  const out=[], planetN=Math.floor(n*.6), ringN=n-planetN;
-  const phi=Math.PI*(3-Math.sqrt(5));
-  for(let i=0;i<planetN;i++){
-    const yi=1-(i/(planetN-1))*2, ri=Math.sqrt(Math.max(0,1-yi*yi)), th=phi*i;
-    const f=1+(rnd()-.5)*cfg.fuzz*.2;
-    out.push(pt(ri*Math.cos(th)*R*.55*f, yi*R*.55*f, ri*Math.sin(th)*R*.55*f, yi*.5+.5));
-  }
-  for(let i=0;i<ringN;i++){
-    const u=rnd()*Math.PI*2, mR=R*.82, tR=R*.15*(rnd()*.6+.4);
-    const tilt=.45;
-    const x=Math.cos(u)*mR*(1+(rnd()-.5)*cfg.fuzz*.3);
-    const yflat=Math.sin(u)*tR;
-    out.push(pt(x, yflat*Math.cos(tilt), mR*Math.sin(u)*Math.sin(tilt)+yflat*Math.sin(tilt), i/ringN));
-  }
-  return out;
-}
-
-function genSupernova(n,R) {
-  const out=[];
-  for(let i=0;i<n;i++){
-    const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI;
-    const t=Math.pow(rnd(),.4);
-    const r=t*R*(1+(rnd()-.5)*cfg.fuzz*.5);
-    out.push(pt(Math.cos(el)*Math.cos(a)*r, Math.sin(el)*r, Math.cos(el)*Math.sin(a)*r, t));
-  }
-  return out;
-}
-
-// ── MATEMÁTICAS ──
-function genKlein(n,R) {
-  const out=[];
-  for(let i=0;i<n;i++){
-    const u=rnd()*Math.PI*2, v=rnd()*Math.PI*2;
-    let x,y,z;
-    if(u<Math.PI){
-      x=(2.5+1.5*Math.cos(v))*Math.cos(u);
-      y=(2.5+1.5*Math.cos(v))*Math.sin(u);
-      z=-.5*Math.sin(v);
-    } else {
-      x=(2.5+1.5*Math.cos(v))*Math.cos(u);
-      y=(2.5+1.5*Math.cos(v))*Math.sin(u);
-      z=.5*Math.sin(v);
+  function initStars(){
+    W = canvas.width; H = canvas.height;
+    stars = [];
+    // Static background stars
+    for(var i=0;i<220;i++){
+      stars.push({
+        x: Math.random()*W,
+        y: Math.random()*H,
+        r: Math.random()*1.6+0.2,
+        alpha: Math.random()*0.7+0.15,
+        alphaDir: (Math.random()-.5)*.008,
+        color: starColors[Math.floor(Math.random()*starColors.length)],
+        vx: (Math.random()-.5)*.06,
+        vy: (Math.random()-.5)*.06,
+        twinkle: Math.random()*Math.PI*2
+      });
     }
-    const scale=R/3.5, f=1+(rnd()-.5)*cfg.fuzz*.25;
-    out.push(pt(x*scale*f, y*scale*f, z*scale*f, v/(Math.PI*2)));
-  }
-  return out;
-}
-
-function genLemniscate(n,R) {
-  const out=[];
-  for(let i=0;i<n;i++){
-    const t=rnd()*Math.PI*2, s=rnd()-.5;
-    const denom=1+Math.sin(t)*Math.sin(t);
-    const x=Math.cos(t)/denom*R;
-    const y=Math.sin(t)*Math.cos(t)/denom*R;
-    const z=s*R*.18*(1+(rnd()-.5)*cfg.fuzz);
-    out.push(pt(x, z, y, (Math.cos(t)*.5+.5)));
-  }
-  return out;
-}
-
-function genRose3D(n,R) {
-  const out=[], petals=6;
-  for(let i=0;i<n;i++){
-    const t=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI*.4;
-    const r=Math.abs(Math.cos(petals*t/2))*R*(1+(rnd()-.5)*cfg.fuzz*.4);
-    out.push(pt(Math.cos(el)*Math.cos(t)*r, Math.sin(el)*r, Math.cos(el)*Math.sin(t)*r, Math.abs(Math.cos(petals*t/2))));
-  }
-  return out;
-}
-
-function genTrefoil(n,R) {
-  const out=[];
-  for(let i=0;i<n;i++){
-    const t=rnd()*Math.PI*2;
-    const x=(Math.sin(t)+2*Math.sin(2*t));
-    const y=(Math.cos(t)-2*Math.cos(2*t));
-    const z=-Math.sin(3*t);
-    const scale=R/3.2, f=1+(rnd()-.5)*cfg.fuzz*.4;
-    out.push(pt(x*scale*f, y*scale*f, z*scale*f, (Math.sin(t)*.5+.5)));
-  }
-  return out;
-}
-
-// ── DINÁMICAS ──
-function genAtom(n,R) {
-  const out=[];
-  const nucleus=Math.floor(n*.08), rest=n-nucleus;
-  for(let i=0;i<nucleus;i++){
-    const r=rnd()*R*.12, a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI;
-    out.push(pt(Math.cos(el)*Math.cos(a)*r, Math.sin(el)*r, Math.cos(el)*Math.sin(a)*r, .5));
-  }
-  const orbits=3;
-  for(let i=0;i<rest;i++){
-    const orb=i%orbits, tilt=orb*Math.PI/orbits;
-    const t=rnd()*Math.PI*2;
-    const r=R*(.5+orb*.18);
-    const x=Math.cos(t)*r;
-    const y=Math.sin(t)*r*Math.sin(tilt);
-    const z=Math.sin(t)*r*Math.cos(tilt);
-    out.push(pt(x+(rnd()-.5)*cfg.fuzz*R*.08, y+(rnd()-.5)*cfg.fuzz*R*.08, z+(rnd()-.5)*cfg.fuzz*R*.08, orb/orbits));
-  }
-  return out;
-}
-
-function genNeural(n,R) {
-  const nodes=12, out=[];
-  const npos=[];
-  for(let i=0;i<nodes;i++){
-    const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI, r=rnd()*R*.75;
-    npos.push([Math.cos(el)*Math.cos(a)*r, Math.sin(el)*r, Math.cos(el)*Math.sin(a)*r]);
-  }
-  const perNode=Math.floor(n*.4/nodes), perEdge=Math.floor(n*.6/(nodes*2));
-  npos.forEach(([nx,ny,nz],i)=>{
-    for(let j=0;j<perNode;j++){
-      const r=R*.07*(rnd()*.6+.4);
-      const a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI;
-      out.push(pt(nx+Math.cos(el)*Math.cos(a)*r, ny+Math.sin(el)*r, nz+Math.cos(el)*Math.sin(a)*r, i/nodes));
+    // Bright feature stars
+    for(var j=0;j<18;j++){
+      stars.push({
+        x: Math.random()*W,
+        y: Math.random()*H,
+        r: Math.random()*2.5+1.5,
+        alpha: Math.random()*0.5+0.4,
+        alphaDir: (Math.random()-.5)*.015,
+        color: starColors[Math.floor(Math.random()*starColors.length)],
+        vx: (Math.random()-.5)*.04,
+        vy: (Math.random()-.5)*.04,
+        twinkle: Math.random()*Math.PI*2,
+        glow: true
+      });
     }
-    // edges
-    const connections=Math.floor(rnd()*4)+2;
-    for(let c=0;c<connections;c++){
-      const j=(i+1+Math.floor(rnd()*(nodes-1)))%nodes;
-      const [tx,ty,tz]=npos[j];
-      for(let k=0;k<perEdge;k++){
-        const t=rnd(), f=(rnd()-.5)*cfg.fuzz*R*.07;
-        out.push(pt(nx*(1-t)+tx*t+f, ny*(1-t)+ty*t+f, nz*(1-t)+tz*t+f, t));
+
+    // Nebula blobs
+    nebulas = [];
+    var nebColors = [
+      [79,70,229], [99,102,241], [139,92,246], [167,139,250]
+    ];
+    for(var k=0;k<5;k++){
+      var c = nebColors[k % nebColors.length];
+      nebulas.push({
+        x: Math.random()*W, y: Math.random()*H,
+        rx: 80+Math.random()*180, ry: 60+Math.random()*120,
+        alpha: 0.04+Math.random()*0.07,
+        r: c[0], g: c[1], b: c[2],
+        vx: (Math.random()-.5)*.08,
+        vy: (Math.random()-.5)*.05
+      });
+    }
+  }
+
+  initStars();
+
+  var t = 0;
+
+  function draw(){
+    W = canvas.width; H = canvas.height;
+    ctx.clearRect(0,0,W,H);
+    t += 0.012;
+
+    // Draw nebulas
+    for(var n=0;n<nebulas.length;n++){
+      var nb = nebulas[n];
+      nb.x += nb.vx; nb.y += nb.vy;
+      if(nb.x < -200) nb.x = W+200;
+      if(nb.x > W+200) nb.x = -200;
+      if(nb.y < -200) nb.y = H+200;
+      if(nb.y > H+200) nb.y = -200;
+      var grd = ctx.createRadialGradient(nb.x,nb.y,0, nb.x,nb.y,nb.rx);
+      grd.addColorStop(0,'rgba('+nb.r+','+nb.g+','+nb.b+','+nb.alpha+')');
+      grd.addColorStop(1,'rgba('+nb.r+','+nb.g+','+nb.b+',0)');
+      ctx.beginPath();
+      ctx.ellipse(nb.x, nb.y, nb.rx, nb.ry, t*0.05, 0, Math.PI*2);
+      ctx.fillStyle = grd;
+      ctx.fill();
+    }
+
+    // Move + draw stars
+    for(var i=0;i<stars.length;i++){
+      var s = stars[i];
+      s.twinkle += 0.025;
+      s.alpha += s.alphaDir;
+      if(s.alpha > 0.95 || s.alpha < 0.08) s.alphaDir *= -1;
+
+      // Mouse repel (subtle)
+      var dx = s.x - mouse.x, dy = s.y - mouse.y;
+      var dist = Math.sqrt(dx*dx+dy*dy);
+      if(dist < 120 && dist > 0){
+        var force = (120-dist)/120 * 0.3;
+        s.x += dx/dist * force;
+        s.y += dy/dist * force;
+      }
+
+      s.x += s.vx; s.y += s.vy;
+      if(s.x < 0) s.x = W; if(s.x > W) s.x = 0;
+      if(s.y < 0) s.y = H; if(s.y > H) s.y = 0;
+
+      var twinkAlpha = s.alpha * (0.7 + 0.3*Math.sin(s.twinkle));
+
+      if(s.glow){
+        // Glow halo
+        var glow = ctx.createRadialGradient(s.x,s.y,0, s.x,s.y, s.r*5);
+        glow.addColorStop(0, s.color + twinkAlpha*.6+')');
+        glow.addColorStop(1, s.color + '0)');
+        ctx.beginPath(); ctx.arc(s.x,s.y,s.r*5,0,Math.PI*2);
+        ctx.fillStyle = glow; ctx.fill();
+
+        // Cross sparkle
+        ctx.save();
+        ctx.translate(s.x,s.y);
+        ctx.rotate(t * 0.5);
+        ctx.strokeStyle = s.color + twinkAlpha*.8+')';
+        ctx.lineWidth = 0.5;
+        ctx.beginPath();
+        ctx.moveTo(-s.r*4,0); ctx.lineTo(s.r*4,0);
+        ctx.moveTo(0,-s.r*4); ctx.lineTo(0,s.r*4);
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // Star dot
+      ctx.beginPath();
+      ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+      ctx.fillStyle = s.color + twinkAlpha + ')';
+      ctx.fill();
+    }
+
+    // Draw constellation lines between nearby stars
+    ctx.lineWidth = 0.4;
+    for(var a=0;a<stars.length;a++){
+      for(var b=a+1;b<stars.length;b++){
+        var sa = stars[a], sb = stars[b];
+        var ddx = sa.x-sb.x, ddy = sa.y-sb.y;
+        var dd = Math.sqrt(ddx*ddx+ddy*ddy);
+        if(dd < 90){
+          var lineAlpha = (1-dd/90) * 0.18;
+          ctx.beginPath();
+          ctx.moveTo(sa.x, sa.y);
+          ctx.lineTo(sb.x, sb.y);
+          ctx.strokeStyle = 'rgba(140,130,255,'+lineAlpha+')';
+          ctx.stroke();
+        }
       }
     }
-  });
-  return out.slice(0,n);
-}
 
-function genTornado(n,R) {
-  const out=[];
-  for(let i=0;i<n;i++){
-    const t=rnd();
-    const y=(t-.5)*R*2;
-    const r=t*R*.9*(1+(rnd()-.5)*cfg.fuzz*.5);
-    const a=rnd()*Math.PI*2;
-    out.push(pt(Math.cos(a)*r, y, Math.sin(a)*r, t));
-  }
-  return out;
-}
-
-// ── CONSTELACIONES ──
-// Coordenadas: [RA en horas, Dec en grados] → convertidas a XYZ en esfera unitaria
-// Índices de conexión: pares [i,j] que forman las líneas
-const CONSTELLATIONS = {
-  aries: {
-    stars: [[2.119,23.46],[1.910,20.81],[1.887,19.29],[1.922,19.18],[2.833,27.26]],
-    lines: [[0,1],[1,2],[2,3],[0,4]]
-  },
-  taurus: {
-    stars: [[4.598,16.51],[3.791,24.11],[4.477,15.87],[4.329,15.63],[4.013,12.49],[5.438,28.61],[5.627,21.14],[4.703,22.96],[4.476,19.18]],
-    lines: [[0,2],[2,3],[3,4],[0,1],[1,8],[8,6],[0,5],[5,6],[6,7]]
-  },
-  gemini: {
-    stars: [[7.755,28.03],[7.576,31.89],[6.628,16.40],[6.754,12.90],[7.069,20.57],[6.879,13.18],[6.382,22.51],[6.248,22.51],[7.336,21.98],[7.185,30.24]],
-    lines: [[0,9],[9,4],[4,2],[2,3],[1,6],[6,7],[7,5],[0,1],[9,8]]
-  },
-  cancer: {
-    stars: [[8.745,18.15],[8.978,11.86],[8.275,9.19],[8.721,21.47],[8.198,17.65]],
-    lines: [[0,1],[0,3],[1,2],[3,4],[2,4]]
-  },
-  leo: {
-    stars: [[10.139,11.97],[10.332,19.84],[9.879,26.01],[10.122,23.42],[9.764,23.77],[10.897,15.43],[11.235,20.52],[11.817,14.57],[9.529,9.99]],
-    lines: [[0,1],[1,2],[2,3],[3,4],[4,0],[0,5],[5,6],[6,7],[0,8]]
-  },
-  virgo: {
-    stars: [[13.420,-11.16],[11.845,-1.45],[12.694,-1.45],[12.332,-0.67],[13.036,10.96],[14.177,13.78],[13.578,-0.60],[12.926,-3.40],[13.165,0.55]],
-    lines: [[0,6],[6,8],[8,2],[2,1],[2,3],[3,4],[4,5],[8,7],[0,7]]
-  },
-  libra: {
-    stars: [[15.283,-9.38],[14.848,-15.99],[15.068,-25.28],[15.644,-28.13],[14.351,-13.37]],
-    lines: [[0,1],[1,2],[2,3],[0,4],[1,4]]
-  },
-  scorpio: {
-    stars: [[16.490,-26.43],[16.836,-34.29],[17.622,-43.00],[17.708,-39.03],[17.795,-40.13],[17.560,-37.10],[16.004,-22.62],[16.351,-25.59],[17.531,-37.30],[17.793,-37.04]],
-    lines: [[0,1],[1,2],[0,6],[6,7],[7,1],[2,3],[3,4],[4,5],[2,8],[8,9]]
-  },
-  sagittarius: {
-    stars: [[19.044,-29.88],[18.921,-26.30],[18.350,-36.76],[18.466,-25.42],[18.962,-21.02],[18.029,-30.42],[19.116,-27.67],[18.761,-36.46],[18.293,-21.11]],
-    lines: [[0,1],[1,4],[4,8],[0,2],[2,5],[5,3],[3,1],[0,6],[6,4],[2,7]]
-  },
-  capricorn: {
-    stars: [[20.294,-12.51],[20.350,-14.78],[21.784,-16.13],[20.863,-17.23],[21.099,-17.23],[21.370,-16.84],[20.668,-14.78]],
-    lines: [[0,1],[1,6],[6,3],[3,4],[4,5],[5,2],[0,2]]
-  },
-  aquarius: {
-    stars: [[22.877,-15.82],[22.589,-0.31],[22.361,-1.39],[22.097,-13.86],[21.526,-5.57],[22.480,-0.02],[23.239,-6.05],[22.826,-13.59]],
-    lines: [[0,7],[7,3],[3,4],[4,2],[2,1],[1,5],[5,0],[0,6],[6,7]]
-  },
-  pisces: {
-    stars: [[1.756,9.16],[23.666,5.63],[23.460,6.86],[1.194,8.19],[1.529,15.35],[0.812,7.59],[2.034,2.76],[1.020,3.49],[23.985,6.82]],
-    lines: [[0,3],[3,4],[0,6],[6,7],[7,5],[5,8],[8,2],[2,1],[1,8]]
-  },
-  orion: {
-    stars: [[5.919,7.41],[5.242,6.35],[5.533,-0.30],[5.680,-1.94],[5.796,1.71],[5.603,-5.91],[4.844,6.96],[5.248,2.44],[5.588,-5.41],[5.906,3.20]],
-    lines: [[0,9],[9,6],[6,7],[0,4],[4,2],[2,3],[3,5],[5,8],[0,1],[1,7],[7,4],[3,8]]
-  },
-  ursamajor: {
-    stars: [[11.062,56.38],[11.031,56.37],[10.372,55.96],[9.849,59.04],[9.526,51.68],[8.999,48.04],[11.897,53.69],[12.900,55.96],[13.398,54.93],[12.257,57.03]],
-    lines: [[0,1],[1,2],[2,3],[3,4],[4,5],[0,6],[6,7],[7,8],[8,9],[9,0]]
-  },
-  ursaminor: {
-    stars: [[2.530,89.26],[14.845,74.16],[15.734,77.79],[16.292,75.76],[17.537,86.59],[16.766,82.04],[15.345,71.83]],
-    lines: [[0,5],[5,4],[4,2],[2,1],[1,6],[6,3],[3,2]]
-  },
-  crux: {
-    stars: [[12.443,-63.10],[12.519,-57.11],[12.252,-58.75],[12.353,-60.40],[12.772,-60.01]],
-    lines: [[0,1],[2,3],[3,4],[0,2],[1,4]]
-  },
-  cassiopeia: {
-    stars: [[0.675,56.54],[1.430,60.24],[0.945,60.72],[0.153,59.15],[1.906,63.67]],
-    lines: [[0,2],[2,1],[1,4],[0,3]]
-  },
-  andromeda: {
-    stars: [[0.139,29.09],[0.830,30.86],[1.162,35.62],[1.633,48.63],[1.029,38.50],[2.065,42.33],[0.656,30.86],[2.503,50.69]],
-    lines: [[0,6],[6,1],[1,4],[4,2],[2,5],[5,7],[1,3]]
-  },
-  pegasus: {
-    stars: [[0.139,29.09],[22.691,10.83],[23.063,28.08],[21.744,9.87],[22.116,6.20],[22.833,24.60],[23.680,15.21],[23.409,23.40]],
-    lines: [[0,2],[2,7],[7,5],[5,1],[1,3],[3,4],[0,6],[6,1]]
-  },
-  hercules: {
-    stars: [[17.244,14.39],[16.503,21.49],[16.688,31.60],[17.005,30.93],[17.657,46.01],[17.394,37.15],[16.365,19.15],[17.937,29.25],[18.126,28.76]],
-    lines: [[0,6],[6,1],[1,2],[2,3],[3,4],[4,5],[5,2],[0,3],[3,7],[7,8],[5,8]]
-  }
-};
-
-// Convierte RA (horas) / Dec (grados) a XYZ en esfera unitaria
-function raDec2xyz(ra, dec) {
-  const raR = ra / 12 * Math.PI;   // horas → radianes
-  const decR = dec * Math.PI / 180;
-  return [
-    Math.cos(decR) * Math.cos(raR),
-    Math.sin(decR),
-    Math.cos(decR) * Math.sin(raR)
-  ];
-}
-
-// Centra y escala la constelación para que quepa en el radio R
-function buildConstellation(key, n, R) {
-  const con = CONSTELLATIONS[key];
-  if (!con) return [];
-
-  // Convertir a XYZ
-  const raw = con.stars.map(([ra, dec]) => raDec2xyz(ra, dec));
-
-  // Centroide
-  const cx = raw.reduce((s,p)=>s+p[0],0)/raw.length;
-  const cy = raw.reduce((s,p)=>s+p[1],0)/raw.length;
-  const cz = raw.reduce((s,p)=>s+p[2],0)/raw.length;
-  const centered = raw.map(([x,y,z])=>[x-cx, y-cy, z-cz]);
-
-  // Escala: max distancia al origen → R * 0.72
-  const maxD = Math.max(...centered.map(([x,y,z])=>Math.sqrt(x*x+y*y+z*z))) || 1;
-  const scale = R * 0.72 / maxD;
-  const scaled = centered.map(([x,y,z])=>[x*scale, y*scale, z*scale]);
-
-  const out = [];
-  const starSize = cfg.dot * 2.2; // las estrellas principales son más grandes (se maneja via tc)
-
-  // 1. Partículas en los nodos estelares (clúster brillante)
-  const starParticles = Math.min(Math.floor(n * 0.35), 40 * con.stars.length);
-  const perStar = Math.floor(starParticles / con.stars.length);
-  scaled.forEach(([sx,sy,sz], si) => {
-    const tc = si / (con.stars.length - 1 || 1);
-    // Centro de la estrella - punto muy brillante
-    out.push([sx, sy, sz, rnd()*Math.PI*2, 0.001, tc, 0.3]);
-    // Halo de partículas alrededor
-    for(let j = 1; j < perStar; j++) {
-      const r = rnd() * R * 0.045 * (1 + cfg.fuzz * 0.5);
-      const a = rnd() * Math.PI * 2, el = (rnd()-.5) * Math.PI;
-      out.push([
-        sx + Math.cos(el)*Math.cos(a)*r,
-        sy + Math.sin(el)*r,
-        sz + Math.cos(el)*Math.sin(a)*r,
-        rnd()*Math.PI*2, R*0.008, tc, 0.3+rnd()*0.4
-      ]);
+    // Shooting star occasionally
+    if(Math.random() < 0.003){
+      shootStar();
     }
-  });
+    drawShootingStars();
 
-  // 2. Partículas a lo largo de las líneas de conexión (líneas punteadas)
-  const lineParticles = n - out.length;
-  const perLine = con.lines.length > 0 ? Math.floor(lineParticles / con.lines.length) : 0;
-  con.lines.forEach(([ai, bi]) => {
-    if (ai >= scaled.length || bi >= scaled.length) return;
-    const [ax,ay,az] = scaled[ai];
-    const [bx,by,bz] = scaled[bi];
-    for(let k = 0; k < perLine; k++) {
-      const t = rnd();
-      const f = (rnd()-.5) * cfg.fuzz * R * 0.018;
-      const tc = ai / (con.stars.length - 1 || 1) * (1-t) + bi / (con.stars.length - 1 || 1) * t;
-      out.push([
-        ax*(1-t)+bx*t + f,
-        ay*(1-t)+by*t + f,
-        az*(1-t)+bz*t + f,
-        rnd()*Math.PI*2, R*0.006, tc, 0.25+rnd()*0.3
-      ]);
+    requestAnimationFrame(draw);
+  }
+
+  var shootingStars = [];
+  function shootStar(){
+    shootingStars.push({
+      x: Math.random()*W*0.6,
+      y: Math.random()*H*0.4,
+      len: 80+Math.random()*120,
+      speed: 8+Math.random()*6,
+      alpha: 1,
+      angle: Math.PI/5 + Math.random()*0.3
+    });
+  }
+  function drawShootingStars(){
+    for(var i=shootingStars.length-1;i>=0;i--){
+      var ss = shootingStars[i];
+      ss.x += Math.cos(ss.angle)*ss.speed;
+      ss.y += Math.sin(ss.angle)*ss.speed;
+      ss.alpha -= 0.025;
+      if(ss.alpha <= 0){ shootingStars.splice(i,1); continue; }
+      var grad = ctx.createLinearGradient(
+        ss.x,ss.y,
+        ss.x - Math.cos(ss.angle)*ss.len,
+        ss.y - Math.sin(ss.angle)*ss.len
+      );
+      grad.addColorStop(0,'rgba(255,255,255,'+ss.alpha+')');
+      grad.addColorStop(1,'rgba(180,170,255,0)');
+      ctx.beginPath();
+      ctx.moveTo(ss.x,ss.y);
+      ctx.lineTo(ss.x - Math.cos(ss.angle)*ss.len, ss.y - Math.sin(ss.angle)*ss.len);
+      ctx.strokeStyle = grad;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
     }
-  });
-
-  return out.slice(0, n);
-}
-
-// ── BUILD ──
-function build() {
-  const n=cfg.count, R=cfg.radius;
-  const gen = {
-    nebula:genNebula, sphere:genSphere, ring:genRing, galaxy:genGalaxy,
-    vortex:genVortex, dna:genDNA, icosahedron:genIcosahedron,
-    octahedron:genOctahedron, dodecahedron:genDodecahedron, pyramid:genPyramid,
-    wave:genWave, drop:genDrop, bubbles:genBubbles, snail:genSnail,
-    blackhole:genBlackhole, comet:genComet, planet:genPlanet, supernova:genSupernova,
-    klein:genKlein, lemniscate:genLemniscate, rose:genRose3D, trefoil:genTrefoil,
-    atom:genAtom, neural:genNeural, tornado:genTornado
-  };
-  // Constellation models
-  const constellationKeys = Object.keys(CONSTELLATIONS);
-  if (constellationKeys.includes(cfg.model)) {
-    pts = buildConstellation(cfg.model, n, R);
-  } else {
-    pts = (gen[cfg.model]||genNebula)(n, R);
   }
-}
 
-// ── 3D ──
-function rotY(x,z,a){return[x*Math.cos(a)-z*Math.sin(a),x*Math.sin(a)+z*Math.cos(a)];}
-function rotX(y,z,a){return[y*Math.cos(a)-z*Math.sin(a),y*Math.sin(a)+z*Math.cos(a)];}
-
-// ── DRAW ──
-function draw() {
-  const S=(cfg.radius+62)*2, cx=S/2, cy=S/2;
-  ctx.clearRect(0,0,S,S);
-  time += .016*cfg.speed;
-  angle = time*.38;
-  const breathe=1+Math.sin(time*.5)*.018;
-
-  // core glow
-  const grd=ctx.createRadialGradient(cx,cy,0,cx,cy,cfg.radius*.6);
-  grd.addColorStop(0,`rgba(${cfg.ca},0.055)`);
-  grd.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=grd; ctx.fillRect(0,0,S,S);
-
-  const projected=[];
-  for(const [bx,by,bz,phase,dA,tc,wSpd] of pts){
-    const wobble=Math.sin(time*wSpd+phase)*dA*breathe;
-    const wx=bx+wobble*Math.cos(phase), wy=by+wobble*Math.sin(phase)*.5, wz=bz+wobble*Math.sin(phase);
-    const [rx,rz0]=rotY(wx,wz,angle);
-    const [ry,rz]=rotX(wy,rz0,.28);
-    const fov=430, depth=fov/(fov+rz+cfg.radius*1.3);
-    const sx=cx+rx*depth, sy=cy+ry*depth;
-    const dist=Math.sqrt(rx*rx+ry*ry)/cfg.radius;
-    let alpha=depth*1.4*cfg.opacity*Math.max(0,1-Math.pow(dist,2.2)*.5);
-    projected.push({sx,sy,rz,depth,tc,alpha,size:cfg.dot*depth});
-  }
-  projected.sort((a,b)=>a.rz-b.rz);
-  for(const p of projected){
-    if(p.size<.22||p.alpha<.01) continue;
-    ctx.beginPath();
-    ctx.arc(p.sx,p.sy,p.size,0,Math.PI*2);
-    ctx.fillStyle=ptColor(p.tc,p.alpha);
-    ctx.fill();
-  }
-  raf=requestAnimationFrame(draw);
-}
-
-// ── GLOW ──
-function applyGlow(){
-  const [r,g,b]=cfg.ca,[r2,g2,b2]=cfg.cb;
-  canvas.style.filter=cfg.glow>0
-    ?`drop-shadow(0 0 ${cfg.glow*.55}px rgba(${r},${g},${b},.9)) drop-shadow(0 0 ${cfg.glow}px rgba(${r2},${g2},${b2},.45))`
-    :'none';
-  document.documentElement.style.setProperty('--accent',`rgb(${r},${g},${b})`);
-}
-
-function init(){setupCanvas();build();if(raf)cancelAnimationFrame(raf);draw();applyGlow();}
-
-// ── CONTROLS ──
-$('modelSeg').addEventListener('click',e=>{
-  const btn=e.target.closest('button'); if(!btn) return;
-  cfg.model=btn.dataset.model;
-  document.querySelectorAll('#modelSeg button,#zodSeg button,#iconSeg button').forEach(b=>b.classList.toggle('active',b===btn));
-  build();
-});
-
-['zodSeg','iconSeg'].forEach(segId=>{
-  $(segId).addEventListener('click',e=>{
-    const btn=e.target.closest('button'); if(!btn) return;
-    cfg.model=btn.dataset.model;
-    document.querySelectorAll('#modelSeg button,#zodSeg button,#iconSeg button').forEach(b=>b.classList.toggle('active',b===btn));
-    build();
-  });
-});
-
-$('swatches').addEventListener('click',e=>{
-  const sw=e.target.closest('.swatch'); if(!sw) return;
-  document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
-  sw.classList.add('active');
-  cfg.ca=hexRgb(sw.dataset.ca); cfg.cb=hexRgb(sw.dataset.cb); cfg.cc=hexRgb(sw.dataset.cc);
-  $('ca').value=sw.dataset.ca; $('cb').value=sw.dataset.cb; $('cc').value=sw.dataset.cc;
-  applyGlow();
-});
-
-['ca','cb','cc'].forEach((id,i)=>{
-  $(id).addEventListener('input',function(){
-    document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
-    cfg[id]=hexRgb(this.value); if(i===0) applyGlow();
-  });
-});
-
-function slider(id,valId,key,fmt,rebuild=false,reinit=false){
-  $(id).addEventListener('input',function(){
-    cfg[key]=+this.value;
-    $(valId).textContent=fmt?fmt(this.value):this.value;
-    if(reinit) init(); else if(rebuild) build();
-    if(key==='glow') applyGlow();
-  });
-}
-slider('dotR','dotV','dot');
-slider('cntR','cntV','count','',true);
-slider('spdR','spdV','speed',v=>v+'×');
-slider('radR','radV','radius','',false,true);
-slider('fuzzR','fuzzV','fuzz','',true);
-slider('glwR','glwV','glow');
-slider('opR','opV','opacity');
-
-init();
+  draw();
+})();
 </script>
+
+<!-- ══════════════════════════════════════════
+     CMS LOADER — reads from localStorage (admin.html)
+     ══════════════════════════════════════════ -->
+<script>
+(function(){
+  var DEFAULT = {
+    geral:{nome:'tecnoARG',logo1:'tecno',logo2:'ARG',title:'tecnoARG – Sites Inteligentes para Negócios',whatsapp:'5491100000000',whatsappText:'Falar pelo WhatsApp'},
+    hero:{badge:'SOLUÇÕES WEB QUE POTENCIALIZAM SEU NEGÓCIO',title1:'Sites inteligentes',title2:'para negócios que',title3:'crescer',desc:'Criamos sites modernos, rápidos e fáceis de usar que ajudam você a atrair mais clientes, vender mais e organizar melhor o seu negócio.',btn1:'Ver serviços →',btn2:'Ver exemplos →'},
+    features:[{icon:'🚀',title:'Entrega rápida',desc:'Seu site pronto em poucos dias'},{icon:'🛡️',title:'Seguros e confiáveis',desc:'Protegemos suas informações e as dos seus clientes'},{icon:'📱',title:'100% responsivo',desc:'Fica perfeito em todos os dispositivos'},{icon:'🎧',title:'Suporte permanente',desc:'Estamos sempre aqui quando você precisar'}],
+    servicos:{label:'Serviços',title:'Soluções web para cada tipo de negócio',subtitle:'Desenvolvemos sites sob medida de acordo com suas necessidades.',cards:[{icon:'🍽️',title:'Site de Cardápio Digital',subtitle:'para Restaurantes e Bares',features:['Mostre seu cardápio de forma atraente e profissional','Seus clientes pedem direto pelo celular','Atualize preços e produtos na hora','Mais vendas, melhor experiência']},{icon:'📅',title:'Site de Agendamento Online',subtitle:'para Academias, Estéticas e mais',features:['Seus clientes agendam 24/7','Calendário automático sem conflitos','Lembretes por WhatsApp ou e-mail','Menos cancelamentos, mais organização']}]},
+    beneficios:{label:'Por que nos escolher?',title:'Mais que um site, uma ferramenta para crescer',cards:[{icon:'⚡',title:'Rápido e otimizado',desc:'Carregamento rápido para melhor experiência e melhor posicionamento no Google.'},{icon:'✏️',title:'Design profissional',desc:'Sites modernos que transmitem confiança e aumentam suas vendas.'},{icon:'⚙️',title:'Fácil de administrar',desc:'Painel intuitivo para você editar seu conteúdo quando quiser.'},{icon:'🤝',title:'Acompanhamento real',desc:'Te assessoramos e acompanhamos em todo o processo e depois também.'},{icon:'🎯',title:'Feito sob medida',desc:'Cada site é único, adaptado à sua marca e aos seus objetivos de negócio.'}]},
+    projetos:{label:'Trabalhos Recentes',title:'Alguns projetos que já estão gerando resultados',items:[{name:'La Esquina Resto & Bar',type:'Site de Cardápio Digital',thumbLabel:'🍔 LA ESQUINA',thumbSub:'Sabor, qualidade e boa companhia',link:'#',gradient:'linear-gradient(135deg,#1a0a00,#3d1500)',image:''},{name:'Energy Gym',type:'Site de Agendamento Online',thumbLabel:'ENERGY GYM',thumbSub:'MAIS FORTE QUE SUAS DESCULPAS',link:'#',gradient:'linear-gradient(135deg,#001a0a,#003d15)',image:''},{name:'Glow Estética',type:'Site de Agendamento Online',thumbLabel:'✨ Glow Estética',thumbSub:'Seu momento de bem-estar',link:'#',gradient:'linear-gradient(135deg,#0a001a,#200040)',image:''},{name:'The Barber',type:'Site de Agendamento Online',thumbLabel:'THE BARBER',thumbSub:'ESTILO & PRECISÃO',link:'#',gradient:'linear-gradient(135deg,#1a1000,#3d2800)',image:''}]},
+    cta:{title:'Pronto para levar seu negócio ao próximo nível?',desc:'Conta sua ideia e criamos juntos o site que seu negócio precisa. Sem compromisso, te assessoramos.',btn1:'Falar pelo WhatsApp',btn2:'Quero mais informações'},
+    rodape:{text:'© 2024 tecnoARG – Todos os direitos reservados. Feito com ❤️ para negócios que querem crescer.',year:'2024'}
+  };
+
+  // Load saved data or defaults
+  var saved = localStorage.getItem('tecnoarg_data');
+  var d = saved ? JSON.parse(saved) : DEFAULT;
+  // Merge missing keys with defaults
+  ['geral','hero','features','servicos','beneficios','projetos','cta','rodape'].forEach(function(k){
+    if(!d[k]) d[k] = DEFAULT[k];
+  });
+
+  function el(id){ return document.getElementById(id); }
+  function setText(id, val){ var e=el(id); if(e&&val!==undefined) e.textContent=val; }
+  function setHTML(id, val){ var e=el(id); if(e&&val!==undefined) e.innerHTML=val; }
+
+  // ── GERAL ──
+  var g = d.geral;
+  document.title = g.title || DEFAULT.geral.title;
+  setText('cms-logo1', g.logo1);
+  setText('cms-logo2', g.logo2);
+  var waLink = el('cms-wa-link');
+  if(waLink) waLink.href = 'https://wa.me/' + (g.whatsapp||'5491100000000');
+  setText('cms-wa-text', g.whatsappText);
+
+  // ── HERO ──
+  var h = d.hero;
+  setText('cms-hero-badge', h.badge);
+  setText('cms-h-title1', h.title1);
+  setText('cms-h-title2', h.title2);
+  setText('cms-h-title3', h.title3);
+  setText('cms-hero-desc', h.desc);
+  setText('cms-hero-btn1', h.btn1);
+  setText('cms-hero-btn2', h.btn2);
+
+  // ── FEATURES ──
+  var fs = el('cms-features-strip');
+  if(fs && d.features){
+    fs.innerHTML = d.features.map(function(f){
+      return '<div class="feature-item"><span class="feature-icon">'+f.icon+'</span><div><div class="feature-title">'+f.title+'</div><div class="feature-desc">'+f.desc+'</div></div></div>';
+    }).join('');
+  }
+
+  // ── SERVIÇOS ──
+  var sv = d.servicos;
+  setText('cms-sv-label', sv.label);
+  setText('cms-sv-title', sv.title);
+  setText('cms-sv-subtitle', sv.subtitle);
+
+  // Rebuild service cards inside existing .services-grid
+  var sgrid = document.querySelector('.services-grid');
+  if(sgrid && sv.cards){
+    // Keep the visual side (mini-menu / mini-booking) — only update text side
+    var existingCards = sgrid.querySelectorAll('.service-card');
+    sv.cards.forEach(function(c, i){
+      if(!existingCards[i]) return;
+      var card = existingCards[i];
+      var iconEl = card.querySelector('.service-icon');
+      var titleEl = card.querySelector('.service-title');
+      var subEl = card.querySelector('.service-subtitle');
+      var featList = card.querySelector('.service-features');
+      if(iconEl) iconEl.textContent = c.icon;
+      if(titleEl) titleEl.textContent = c.title;
+      if(subEl) subEl.textContent = c.subtitle;
+      if(featList) featList.innerHTML = c.features.map(function(f){ return '<li>'+f+'</li>'; }).join('');
+    });
+  }
+
+  // ── BENEFÍCIOS ──
+  var b = d.beneficios;
+  setText('cms-b-label', b.label);
+  setText('cms-b-title', b.title);
+  var wg = el('cms-why-grid');
+  if(wg && b.cards){
+    wg.innerHTML = b.cards.map(function(c){
+      return '<div class="why-card"><div class="w-icon">'+c.icon+'</div><div class="w-title">'+c.title+'</div><div class="w-desc">'+c.desc+'</div></div>';
+    }).join('');
+  }
+
+  // ── PROJETOS ──
+  var pj = d.projetos;
+  setText('cms-p-label', pj.label);
+  setText('cms-p-title', pj.title);
+  var pg = el('cms-projects-grid');
+  if(pg && pj.items){
+    pg.innerHTML = pj.items.map(function(p){
+      var thumb = p.image
+        ? '<img src="'+p.image+'" style="width:100%;height:100%;object-fit:cover;" />'
+        : '<div><div class="project-thumb-label">'+p.thumbLabel+'</div><div class="project-thumb-sub">'+p.thumbSub+'</div></div>';
+      var linkAttr = p.link && p.link !== '#' ? 'href="'+p.link+'" target="_blank" rel="noopener"' : 'href="#"';
+      return '<div class="project-card">'
+        +'<a '+linkAttr+' style="display:block;text-decoration:none;">'
+        +'<div class="project-thumb" style="background:'+p.gradient+';">'
+        +thumb
+        +'<span class="ext-icon">↗</span>'
+        +'</div>'
+        +'</a>'
+        +'<div class="project-info">'
+        +'<div class="project-name">'+p.name+'</div>'
+        +'<div class="project-type">'+p.type+'</div>'
+        +(p.link && p.link !== '#' ? '<a href="'+p.link+'" target="_blank" rel="noopener" class="project-link">Ver projeto →</a>' : '<span class="project-link" style="opacity:.4;">Em breve</span>')
+        +'</div>'
+        +'</div>';
+    }).join('');
+  }
+
+  // ── CTA ──
+  var cta = d.cta;
+  setText('cms-cta-title', cta.title);
+  setText('cms-cta-desc', cta.desc);
+  setText('cms-cta-btn1', cta.btn1);
+  setText('cms-cta-btn2', cta.btn2);
+  var ctaBtn1Link = el('cms-cta-btn1-link');
+  if(ctaBtn1Link && g.whatsapp) ctaBtn1Link.href = 'https://wa.me/'+g.whatsapp;
+
+  // ── RODAPÉ ──
+  var r = d.rodape;
+  if(r && r.text){
+    var footer = el('cms-footer-text');
+    if(footer) footer.innerHTML = r.text.replace(/(tecnoARG)/g,'<strong>$1</strong>');
+  }
+
+})();
+</script>
+
 </body>
 </html>

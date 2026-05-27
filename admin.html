@@ -1,0 +1,1377 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>tecnoARG — Admin Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --bg3: #16161f;
+  --card: #1a1a26;
+  --border: #2a2a3d;
+  --accent: #4f46e5;
+  --accent2: #6366f1;
+  --accent-light: #818cf8;
+  --green: #22c55e;
+  --red: #ef4444;
+  --yellow: #f59e0b;
+  --text: #f0f0f8;
+  --muted: #8888aa;
+  --white: #ffffff;
+  --font-head: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 15px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* ── LOGIN ── */
+#login-screen {
+  position: fixed; inset: 0;
+  background: var(--bg);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.login-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 2.5rem 2.5rem;
+  width: 360px;
+  box-shadow: 0 40px 80px rgba(0,0,0,.5);
+}
+.login-logo {
+  font-family: var(--font-head);
+  font-size: 1.6rem; font-weight: 800;
+  color: var(--white); margin-bottom: .3rem;
+}
+.login-logo span { color: var(--accent-light); }
+.login-sub { color: var(--muted); font-size: .85rem; margin-bottom: 2rem; }
+.login-label { font-size: .8rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: .4rem; display: block; }
+.login-input {
+  width: 100%; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 10px;
+  padding: .7rem 1rem; color: var(--text); font-size: .95rem;
+  font-family: var(--font-body);
+  margin-bottom: 1.2rem;
+  transition: border-color .2s;
+}
+.login-input:focus { outline: none; border-color: var(--accent); }
+.login-btn {
+  width: 100%; background: var(--accent);
+  color: var(--white); border: none; border-radius: 10px;
+  padding: .8rem; font-size: 1rem; font-weight: 700;
+  cursor: pointer; transition: background .2s;
+}
+.login-btn:hover { background: var(--accent2); }
+.login-error { color: var(--red); font-size: .82rem; margin-top: .6rem; display: none; }
+
+/* ── LAYOUT ── */
+#app { display: none; min-height: 100vh; }
+
+.sidebar {
+  position: fixed; left: 0; top: 0; bottom: 0;
+  width: 240px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  z-index: 100;
+}
+.sidebar-logo {
+  padding: 1.5rem 1.5rem 1rem;
+  font-family: var(--font-head); font-size: 1.2rem; font-weight: 800;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-logo span { color: var(--accent-light); }
+.sidebar-badge {
+  font-size: .6rem; font-weight: 700; letter-spacing: .1em;
+  background: rgba(79,70,229,.2); color: var(--accent-light);
+  border: 1px solid rgba(99,102,241,.3); border-radius: 100px;
+  padding: 2px 8px; margin-left: .4rem;
+}
+
+.sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
+.nav-item {
+  display: flex; align-items: center; gap: .8rem;
+  padding: .65rem 1.5rem;
+  color: var(--muted); font-size: .9rem; font-weight: 500;
+  cursor: pointer; transition: all .15s;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,.04); }
+.nav-item.active { color: var(--text); border-left-color: var(--accent); background: rgba(79,70,229,.08); }
+.nav-item .icon { font-size: 1rem; width: 20px; text-align: center; }
+
+.sidebar-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: .78rem; color: var(--muted);
+}
+.logout-btn {
+  display: flex; align-items: center; gap: .5rem;
+  color: var(--muted); cursor: pointer;
+  padding: .4rem 0; transition: color .15s;
+  font-size: .85rem;
+}
+.logout-btn:hover { color: var(--red); }
+
+.main-content {
+  margin-left: 240px;
+  padding: 2rem 2.5rem;
+  min-height: 100vh;
+}
+
+/* ── HEADER ── */
+.page-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border);
+}
+.page-title {
+  font-family: var(--font-head);
+  font-size: 1.5rem; font-weight: 800;
+}
+.page-subtitle { color: var(--muted); font-size: .85rem; margin-top: .15rem; }
+
+/* ── PANELS ── */
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── CARDS ── */
+.edit-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 1.5rem;
+  margin-bottom: 1.2rem;
+}
+.edit-card-title {
+  font-weight: 700; font-size: .95rem;
+  margin-bottom: 1rem;
+  display: flex; align-items: center; gap: .5rem;
+}
+.edit-card-title .icon { font-size: 1rem; }
+
+/* ── FORM ELEMENTS ── */
+.form-row { margin-bottom: 1rem; }
+.form-label {
+  font-size: .78rem; font-weight: 600;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: .07em; display: block; margin-bottom: .4rem;
+}
+.form-input, .form-textarea, .form-select {
+  width: 100%; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 9px;
+  padding: .65rem 1rem; color: var(--text); font-size: .9rem;
+  font-family: var(--font-body);
+  transition: border-color .2s;
+}
+.form-input:focus, .form-textarea:focus, .form-select:focus {
+  outline: none; border-color: var(--accent);
+}
+.form-textarea { resize: vertical; min-height: 80px; line-height: 1.5; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; gap: .4rem;
+  border: none; border-radius: 9px;
+  padding: .6rem 1.2rem; font-size: .88rem; font-weight: 600;
+  cursor: pointer; transition: all .15s;
+  font-family: var(--font-body);
+}
+.btn-primary { background: var(--accent); color: var(--white); }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); }
+.btn-success { background: var(--green); color: var(--white); }
+.btn-success:hover { opacity: .9; }
+.btn-danger { background: rgba(239,68,68,.15); color: var(--red); border: 1px solid rgba(239,68,68,.3); }
+.btn-danger:hover { background: rgba(239,68,68,.25); }
+.btn-ghost { background: rgba(255,255,255,.06); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { background: rgba(255,255,255,.1); }
+.btn-sm { padding: .4rem .85rem; font-size: .8rem; }
+
+/* ── SAVE BAR ── */
+.save-bar {
+  position: fixed; bottom: 0; left: 240px; right: 0;
+  background: rgba(26,26,38,.95);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--border);
+  padding: 1rem 2.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  z-index: 50;
+  transform: translateY(100%);
+  transition: transform .3s;
+}
+.save-bar.visible { transform: translateY(0); }
+.save-info { font-size: .85rem; color: var(--muted); }
+.save-info strong { color: var(--yellow); }
+.save-actions { display: flex; gap: .8rem; }
+
+/* ── PROJECTS ── */
+.projects-list { display: flex; flex-direction: column; gap: .8rem; }
+
+.project-item {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  display: flex; align-items: center; gap: 1rem;
+  transition: border-color .2s;
+}
+.project-item:hover { border-color: rgba(99,102,241,.4); }
+
+.project-thumb-preview {
+  width: 60px; height: 60px; border-radius: 8px;
+  flex-shrink: 0; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  position: relative;
+}
+.project-thumb-preview img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+
+.project-item-info { flex: 1; min-width: 0; }
+.project-item-name { font-weight: 700; font-size: .95rem; }
+.project-item-type { font-size: .78rem; color: var(--muted); }
+.project-item-link { font-size: .75rem; color: var(--accent-light); word-break: break-all; }
+
+.project-item-actions { display: flex; gap: .5rem; flex-shrink: 0; }
+
+/* ── ADD PROJECT MODAL ── */
+.modal-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.7);
+  backdrop-filter: blur(4px);
+  z-index: 200;
+  display: none; align-items: center; justify-content: center;
+}
+.modal-backdrop.open { display: flex; }
+
+.modal {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem;
+  width: 540px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 40px 80px rgba(0,0,0,.6);
+}
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+.modal-title { font-family: var(--font-head); font-size: 1.1rem; font-weight: 800; }
+.modal-close {
+  background: rgba(255,255,255,.08); border: none;
+  color: var(--muted); width: 32px; height: 32px;
+  border-radius: 8px; cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
+}
+.modal-close:hover { background: rgba(239,68,68,.15); color: var(--red); }
+
+/* ── IMAGE PREVIEW ── */
+.img-preview-box {
+  width: 100%; height: 120px;
+  background: var(--bg3);
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-direction: column; gap: .5rem;
+  cursor: pointer; overflow: hidden;
+  transition: border-color .2s;
+  position: relative;
+}
+.img-preview-box:hover { border-color: var(--accent); }
+.img-preview-box img { width: 100%; height: 100%; object-fit: cover; }
+.img-preview-placeholder { color: var(--muted); font-size: .82rem; text-align: center; }
+.img-preview-placeholder .icon { font-size: 1.5rem; display: block; margin-bottom: .3rem; }
+#img-file-input { display: none; }
+
+/* ── STATS ── */
+.stats-row {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 1rem; margin-bottom: 2rem;
+}
+.stat-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.2rem 1.4rem;
+}
+.stat-card .s-label { font-size: .75rem; color: var(--muted); margin-bottom: .3rem; }
+.stat-card .s-value {
+  font-family: var(--font-head); font-size: 1.8rem; font-weight: 800;
+  color: var(--accent-light);
+}
+.stat-card .s-sub { font-size: .75rem; color: var(--muted); margin-top: .2rem; }
+
+/* ── DRAG HANDLE ── */
+.drag-handle { cursor: grab; color: var(--muted); font-size: 1.1rem; flex-shrink: 0; }
+.drag-handle:active { cursor: grabbing; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 80px; right: 2rem;
+  background: var(--green); color: var(--white);
+  border-radius: 10px; padding: .7rem 1.2rem;
+  font-size: .88rem; font-weight: 600;
+  box-shadow: 0 8px 24px rgba(34,197,94,.35);
+  z-index: 9999;
+  transform: translateX(120%);
+  transition: transform .3s;
+  display: flex; align-items: center; gap: .5rem;
+}
+.toast.show { transform: translateX(0); }
+.toast-error { background: var(--red); box-shadow: 0 8px 24px rgba(239,68,68,.35); }
+
+/* ── COLOR PICKER PREVIEW ── */
+.color-preview-row { display: flex; align-items: center; gap: .8rem; }
+.color-swatch {
+  width: 36px; height: 36px; border-radius: 8px;
+  border: 1px solid var(--border); cursor: pointer;
+  flex-shrink: 0;
+}
+
+/* ── SECTION DIVIDER ── */
+.section-divider {
+  display: flex; align-items: center; gap: 1rem;
+  margin: 1.5rem 0 1rem;
+}
+.section-divider span {
+  font-size: .75rem; font-weight: 700;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: .1em; white-space: nowrap;
+}
+.section-divider::before, .section-divider::after {
+  content: ''; flex: 1; height: 1px; background: var(--border);
+}
+
+/* ── WHY CARDS LIST ── */
+.why-items { display: flex; flex-direction: column; gap: .6rem; }
+.why-item {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; padding: .8rem 1rem;
+  display: grid; grid-template-columns: 50px 1fr 1fr auto;
+  align-items: center; gap: .8rem;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">&lt;/&gt; tecno<span>ARG</span></div>
+    <div class="login-sub">Painel de Administração</div>
+    <label class="login-label">Usuário</label>
+    <input type="text" class="login-input" id="login-user" placeholder="admin" />
+    <label class="login-label">Senha</label>
+    <input type="password" class="login-input" id="login-pass" placeholder="••••••••" />
+    <button class="login-btn" onclick="doLogin()">Entrar →</button>
+    <div class="login-error" id="login-error">Usuário ou senha incorretos.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      &lt;/&gt; tecno<span>ARG</span>
+      <span class="sidebar-badge">ADMIN</span>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-item active" onclick="showPanel('dashboard')">
+        <span class="icon">📊</span> Dashboard
+      </div>
+      <div class="nav-item" onclick="showPanel('geral')">
+        <span class="icon">🏠</span> Info Geral
+      </div>
+      <div class="nav-item" onclick="showPanel('hero')">
+        <span class="icon">✨</span> Hero / Início
+      </div>
+      <div class="nav-item" onclick="showPanel('features')">
+        <span class="icon">⭐</span> Features Strip
+      </div>
+      <div class="nav-item" onclick="showPanel('servicos')">
+        <span class="icon">🛠️</span> Serviços
+      </div>
+      <div class="nav-item" onclick="showPanel('beneficios')">
+        <span class="icon">🎯</span> Benefícios
+      </div>
+      <div class="nav-item" onclick="showPanel('projetos')">
+        <span class="icon">🖼️</span> Projetos
+      </div>
+      <div class="nav-item" onclick="showPanel('cta')">
+        <span class="icon">💬</span> CTA / Contato
+      </div>
+      <div class="nav-item" onclick="showPanel('rodape')">
+        <span class="icon">📝</span> Rodapé
+      </div>
+      <div class="nav-item" onclick="showPanel('senha')">
+        <span class="icon">🔒</span> Alterar Senha
+      </div>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="logout-btn" onclick="doLogout()">
+        🚪 Sair da conta
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main-content">
+
+    <!-- DASHBOARD -->
+    <div class="panel active" id="panel-dashboard">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📊 Dashboard</div>
+          <div class="page-subtitle">Visão geral do seu painel</div>
+        </div>
+        <button class="btn btn-primary" onclick="exportConfig()">⬇ Exportar config</button>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="s-label">Projetos cadastrados</div>
+          <div class="s-value" id="dash-projects">0</div>
+          <div class="s-sub">na seção Trabalhos</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Serviços configurados</div>
+          <div class="s-value">2</div>
+          <div class="s-sub">Cardápio + Agendamento</div>
+        </div>
+        <div class="stat-card">
+          <div class="s-label">Última edição</div>
+          <div class="s-value" style="font-size:1rem;margin-top:.4rem;" id="dash-lastEdit">—</div>
+          <div class="s-sub">salvo automaticamente</div>
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="edit-card-title">💡 Como usar o painel</div>
+        <p style="color:var(--muted);font-size:.88rem;line-height:1.7;">
+          Use o menu à esquerda para navegar entre as seções. Edite os textos, projetos e informações do seu site. 
+          Ao terminar, clique em <strong style="color:var(--text)">💾 Salvar Alterações</strong> na barra que aparece na parte inferior.
+          <br><br>
+          Para gerar o HTML final atualizado, clique em <strong style="color:var(--text)">⬇ Exportar config</strong> acima — isso baixa um arquivo JSON com todas as configurações que você pode usar para atualizar seu site.
+        </p>
+      </div>
+    </div>
+
+    <!-- INFO GERAL -->
+    <div class="panel" id="panel-geral">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🏠 Info Geral</div>
+          <div class="page-subtitle">Nome da empresa, WhatsApp e links principais</div>
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="edit-card-title"><span class="icon">🏷️</span> Identidade</div>
+        <div class="form-row">
+          <label class="form-label">Nome da empresa (mostrado no logo)</label>
+          <input type="text" class="form-input" id="g-nome" value="tecnoARG" oninput="markDirty()" />
+        </div>
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label class="form-label">Parte normal do logo (ex: "tecno")</label>
+            <input type="text" class="form-input" id="g-logo1" value="tecno" oninput="markDirty()" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Parte destaque do logo (ex: "ARG")</label>
+            <input type="text" class="form-input" id="g-logo2" value="ARG" oninput="markDirty()" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Título da aba do navegador</label>
+          <input type="text" class="form-input" id="g-title" value="tecnoARG – Sites Inteligentes para Negócios" oninput="markDirty()" />
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="edit-card-title"><span class="icon">📱</span> WhatsApp & Contato</div>
+        <div class="form-row">
+          <label class="form-label">Número de WhatsApp (com código do país, sem espaços)</label>
+          <input type="text" class="form-input" id="g-whatsapp" value="5491100000000" placeholder="5491100000000" oninput="markDirty()" />
+          <div style="font-size:.75rem;color:var(--muted);margin-top:.3rem;">Exemplo: 5491100000000 = Brasil (+55) + DDD + número</div>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Texto do botão WhatsApp</label>
+          <input type="text" class="form-input" id="g-whatsapp-text" value="Falar pelo WhatsApp" oninput="markDirty()" />
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="edit-card-title"><span class="icon">🔗</span> Links da Nav</div>
+        <div class="form-grid-2">
+          <div class="form-row"><label class="form-label">Serviços</label><input type="text" class="form-input" id="nav-servicos" value="Serviços" oninput="markDirty()"/></div>
+          <div class="form-row"><label class="form-label">Benefícios</label><input type="text" class="form-input" id="nav-beneficios" value="Benefícios" oninput="markDirty()"/></div>
+          <div class="form-row"><label class="form-label">Trabalhos</label><input type="text" class="form-input" id="nav-trabalhos" value="Trabalhos" oninput="markDirty()"/></div>
+          <div class="form-row"><label class="form-label">Contato</label><input type="text" class="form-input" id="nav-contato" value="Contato" oninput="markDirty()"/></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="panel" id="panel-hero">
+      <div class="page-header">
+        <div>
+          <div class="page-title">✨ Seção Hero</div>
+          <div class="page-subtitle">Textos da parte principal do início</div>
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="edit-card-title"><span class="icon">🏷️</span> Badge topo</div>
+        <div class="form-row">
+          <label class="form-label">Texto do badge</label>
+          <input type="text" class="form-input" id="h-badge" value="SOLUÇÕES WEB QUE POTENCIALIZAM SEU NEGÓCIO" oninput="markDirty()" />
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="edit-card-title"><span class="icon">📝</span> Título principal</div>
+        <div class="form-row">
+          <label class="form-label">Linha 1</label>
+          <input type="text" class="form-input" id="h-title1" value="Sites inteligentes" oninput="markDirty()" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Linha 2</label>
+          <input type="text" class="form-input" id="h-title2" value="para negócios que" oninput="markDirty()" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Palavra destaque (linha 3 — aparece em roxo)</label>
+          <input type="text" class="form-input" id="h-title3" value="crescer" oninput="markDirty()" />
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="edit-card-title"><span class="icon">💬</span> Subtítulo</div>
+        <div class="form-row">
+          <label class="form-label">Texto descritivo</label>
+          <textarea class="form-textarea" id="h-desc" oninput="markDirty()">Criamos sites modernos, rápidos e fáceis de usar que ajudam você a atrair mais clientes, vender mais e organizar melhor o seu negócio.</textarea>
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="edit-card-title"><span class="icon">🔘</span> Botões</div>
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label class="form-label">Botão primário (texto)</label>
+            <input type="text" class="form-input" id="h-btn1" value="Ver serviços →" oninput="markDirty()" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Botão secundário (texto)</label>
+            <input type="text" class="form-input" id="h-btn2" value="Ver exemplos →" oninput="markDirty()" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FEATURES -->
+    <div class="panel" id="panel-features">
+      <div class="page-header">
+        <div>
+          <div class="page-title">⭐ Features Strip</div>
+          <div class="page-subtitle">Os 4 diferenciais na faixa logo abaixo do hero</div>
+        </div>
+      </div>
+
+      <div id="features-editor">
+        <!-- Gerado por JS -->
+      </div>
+    </div>
+
+    <!-- SERVIÇOS -->
+    <div class="panel" id="panel-servicos">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🛠️ Serviços</div>
+          <div class="page-subtitle">Textos dos cards de serviços</div>
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="edit-card-title"><span class="icon">📋</span> Cabeçalho da seção</div>
+        <div class="form-row">
+          <label class="form-label">Rótulo da seção</label>
+          <input type="text" class="form-input" id="sv-label" value="Serviços" oninput="markDirty()" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-input" id="sv-title" value="Soluções web para cada tipo de negócio" oninput="markDirty()" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Subtítulo</label>
+          <input type="text" class="form-input" id="sv-subtitle" value="Desenvolvemos sites sob medida de acordo com suas necessidades." oninput="markDirty()" />
+        </div>
+      </div>
+
+      <div id="services-editor">
+        <!-- Gerado por JS -->
+      </div>
+    </div>
+
+    <!-- BENEFÍCIOS -->
+    <div class="panel" id="panel-beneficios">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🎯 Benefícios</div>
+          <div class="page-subtitle">Cards de "Por que nos escolher?"</div>
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="edit-card-title"><span class="icon">📋</span> Cabeçalho da seção</div>
+        <div class="form-row">
+          <label class="form-label">Rótulo</label>
+          <input type="text" class="form-input" id="b-label" value="Por que nos escolher?" oninput="markDirty()" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-input" id="b-title" value="Mais que um site, uma ferramenta para crescer" oninput="markDirty()" />
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="edit-card-title"><span class="icon">🎯</span> Cards de benefícios</div>
+        <div class="why-items" id="why-editor">
+          <!-- Gerado por JS -->
+        </div>
+      </div>
+    </div>
+
+    <!-- PROJETOS -->
+    <div class="panel" id="panel-projetos">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🖼️ Projetos</div>
+          <div class="page-subtitle">Gerencie os trabalhos na seção portfólio</div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddProject()">+ Adicionar Projeto</button>
+      </div>
+
+      <div class="edit-card" style="margin-bottom:1.2rem;">
+        <div class="edit-card-title"><span class="icon">📋</span> Cabeçalho da seção</div>
+        <div class="form-row">
+          <label class="form-label">Rótulo</label>
+          <input type="text" class="form-input" id="p-label" value="Trabalhos Recentes" oninput="markDirty()" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-input" id="p-title" value="Alguns projetos que já estão gerando resultados" oninput="markDirty()" />
+        </div>
+      </div>
+
+      <div class="projects-list" id="projects-list">
+        <!-- Gerado por JS -->
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="panel" id="panel-cta">
+      <div class="page-header">
+        <div>
+          <div class="page-title">💬 CTA / Contato</div>
+          <div class="page-subtitle">Seção final de chamada para ação</div>
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="form-row">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-input" id="c-title" value="Pronto para levar seu negócio ao próximo nível?" oninput="markDirty()" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Subtítulo</label>
+          <textarea class="form-textarea" id="c-desc" oninput="markDirty()">Conta sua ideia e criamos juntos o site que seu negócio precisa. Sem compromisso, te assessoramos.</textarea>
+        </div>
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label class="form-label">Botão primário</label>
+            <input type="text" class="form-input" id="c-btn1" value="Falar pelo WhatsApp" oninput="markDirty()" />
+          </div>
+          <div class="form-row">
+            <label class="form-label">Botão secundário</label>
+            <input type="text" class="form-input" id="c-btn2" value="Quero mais informações" oninput="markDirty()" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RODAPÉ -->
+    <div class="panel" id="panel-rodape">
+      <div class="page-header">
+        <div>
+          <div class="page-title">📝 Rodapé</div>
+          <div class="page-subtitle">Texto do footer</div>
+        </div>
+      </div>
+
+      <div class="edit-card">
+        <div class="form-row">
+          <label class="form-label">Texto do rodapé</label>
+          <textarea class="form-textarea" id="r-text" oninput="markDirty()">© 2024 tecnoARG – Todos os direitos reservados. Feito com ❤️ para negócios que querem crescer.</textarea>
+        </div>
+        <div class="form-row">
+          <label class="form-label">Ano</label>
+          <input type="text" class="form-input" id="r-year" value="2024" oninput="markDirty()" style="max-width:100px;" />
+        </div>
+      </div>
+    </div>
+
+    <!-- SENHA -->
+    <div class="panel" id="panel-senha">
+      <div class="page-header">
+        <div>
+          <div class="page-title">🔒 Alterar Senha</div>
+          <div class="page-subtitle">Defina uma nova senha de acesso ao admin</div>
+        </div>
+      </div>
+
+      <div class="edit-card" style="max-width:400px;">
+        <div class="form-row">
+          <label class="form-label">Senha atual</label>
+          <input type="password" class="form-input" id="pw-old" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Nova senha</label>
+          <input type="password" class="form-input" id="pw-new" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Confirmar nova senha</label>
+          <input type="password" class="form-input" id="pw-confirm" />
+        </div>
+        <button class="btn btn-primary" onclick="changePassword()">🔒 Salvar nova senha</button>
+        <div id="pw-msg" style="font-size:.82rem;margin-top:.7rem;"></div>
+      </div>
+    </div>
+
+  </main><!-- end main-content -->
+
+  <!-- SAVE BAR -->
+  <div class="save-bar" id="save-bar">
+    <div class="save-info">Você tem <strong>alterações não salvas</strong></div>
+    <div class="save-actions">
+      <button class="btn btn-ghost btn-sm" onclick="discardChanges()">↩ Descartar</button>
+      <button class="btn btn-success" onclick="saveChanges()">💾 Salvar Alterações</button>
+    </div>
+  </div>
+
+</div><!-- end #app -->
+
+<!-- ADD/EDIT PROJECT MODAL -->
+<div class="modal-backdrop" id="project-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title-text">Adicionar Projeto</div>
+      <button class="modal-close" onclick="closeProjectModal()">✕</button>
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Nome do projeto</label>
+      <input type="text" class="form-input" id="m-name" placeholder="Ex: La Esquina Resto & Bar" />
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Tipo / Descrição curta</label>
+      <input type="text" class="form-input" id="m-type" placeholder="Ex: Site de Cardápio Digital" />
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Texto do título na miniatura</label>
+      <input type="text" class="form-input" id="m-thumb-label" placeholder="Ex: 🍔 LA ESQUINA" />
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Subtexto da miniatura</label>
+      <input type="text" class="form-input" id="m-thumb-sub" placeholder="Ex: Sabor, qualidade e boa companhia" />
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Link do projeto</label>
+      <input type="url" class="form-input" id="m-link" placeholder="https://meusite.com.br" />
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Imagem de capa (opcional)</label>
+      <div class="img-preview-box" onclick="document.getElementById('img-file-input').click()">
+        <img id="m-img-preview" src="" style="display:none;" />
+        <div class="img-preview-placeholder" id="m-img-placeholder">
+          <span class="icon">🖼️</span>
+          Clique para fazer upload de uma imagem<br>
+          <span style="font-size:.72rem;color:var(--muted);">JPG, PNG, WebP — recomendado 600×400px</span>
+        </div>
+      </div>
+      <input type="file" id="img-file-input" accept="image/*" onchange="handleImageUpload(event)" />
+    </div>
+
+    <div class="form-row">
+      <label class="form-label">Cor de fundo da miniatura (se sem foto)</label>
+      <div class="color-preview-row">
+        <input type="color" class="color-swatch" id="m-color" value="#1a0a00" oninput="updateColorPreview()" />
+        <input type="text" class="form-input" id="m-gradient" value="linear-gradient(135deg, #1a0a00, #3d1500)" placeholder="CSS gradient ou cor" oninput="markDirty()" style="flex:1;" />
+      </div>
+    </div>
+
+    <div style="display:flex;gap:.8rem;margin-top:1.2rem;">
+      <button class="btn btn-ghost" onclick="closeProjectModal()" style="flex:1;">Cancelar</button>
+      <button class="btn btn-primary" onclick="saveProject()" style="flex:2;">💾 Salvar Projeto</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">✅ Salvo com sucesso!</div>
+
+<script>
+// ─────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────
+const DEFAULT_CREDS = { user: 'admin', pass: 'admin123' };
+
+const DEFAULT_DATA = {
+  geral: {
+    nome: 'tecnoARG', logo1: 'tecno', logo2: 'ARG',
+    title: 'tecnoARG – Sites Inteligentes para Negócios',
+    whatsapp: '5491100000000', whatsappText: 'Falar pelo WhatsApp',
+    navServicos: 'Serviços', navBeneficios: 'Benefícios',
+    navTrabalhos: 'Trabalhos', navContato: 'Contato'
+  },
+  hero: {
+    badge: 'SOLUÇÕES WEB QUE POTENCIALIZAM SEU NEGÓCIO',
+    title1: 'Sites inteligentes', title2: 'para negócios que', title3: 'crescer',
+    desc: 'Criamos sites modernos, rápidos e fáceis de usar que ajudam você a atrair mais clientes, vender mais e organizar melhor o seu negócio.',
+    btn1: 'Ver serviços →', btn2: 'Ver exemplos →'
+  },
+  features: [
+    { icon: '🚀', title: 'Entrega rápida', desc: 'Seu site pronto em poucos dias' },
+    { icon: '🛡️', title: 'Seguros e confiáveis', desc: 'Protegemos suas informações e as dos seus clientes' },
+    { icon: '📱', title: '100% responsivo', desc: 'Fica perfeito em todos os dispositivos' },
+    { icon: '🎧', title: 'Suporte permanente', desc: 'Estamos sempre aqui quando você precisar' }
+  ],
+  servicos: {
+    label: 'Serviços',
+    title: 'Soluções web para cada tipo de negócio',
+    subtitle: 'Desenvolvemos sites sob medida de acordo com suas necessidades.',
+    cards: [
+      {
+        icon: '🍽️', title: 'Site de Cardápio Digital', subtitle: 'para Restaurantes e Bares',
+        features: ['Mostre seu cardápio de forma atraente e profissional','Seus clientes pedem direto pelo celular','Atualize preços e produtos na hora','Mais vendas, melhor experiência']
+      },
+      {
+        icon: '📅', title: 'Site de Agendamento Online', subtitle: 'para Academias, Estéticas e mais',
+        features: ['Seus clientes agendam 24/7','Calendário automático sem conflitos','Lembretes por WhatsApp ou e-mail','Menos cancelamentos, mais organização']
+      }
+    ]
+  },
+  beneficios: {
+    label: 'Por que nos escolher?',
+    title: 'Mais que um site, uma ferramenta para crescer',
+    cards: [
+      { icon: '⚡', title: 'Rápido e otimizado', desc: 'Carregamento rápido para melhor experiência e melhor posicionamento no Google.' },
+      { icon: '✏️', title: 'Design profissional', desc: 'Sites modernos que transmitem confiança e aumentam suas vendas.' },
+      { icon: '⚙️', title: 'Fácil de administrar', desc: 'Painel intuitivo para você editar seu conteúdo quando quiser.' },
+      { icon: '🤝', title: 'Acompanhamento real', desc: 'Te assessoramos e acompanhamos em todo o processo e depois também.' },
+      { icon: '🎯', title: 'Feito sob medida', desc: 'Cada site é único, adaptado à sua marca e aos seus objetivos de negócio.' }
+    ]
+  },
+  projetos: {
+    label: 'Trabalhos Recentes',
+    title: 'Alguns projetos que já estão gerando resultados',
+    items: [
+      { name: 'La Esquina Resto & Bar', type: 'Site de Cardápio Digital', thumbLabel: '🍔 LA ESQUINA', thumbSub: 'Sabor, qualidade e boa companhia', link: '#', gradient: 'linear-gradient(135deg, #1a0a00, #3d1500)', image: '' },
+      { name: 'Energy Gym', type: 'Site de Agendamento Online', thumbLabel: 'ENERGY GYM', thumbSub: 'MAIS FORTE QUE SUAS DESCULPAS', link: '#', gradient: 'linear-gradient(135deg, #001a0a, #003d15)', image: '' },
+      { name: 'Glow Estética', type: 'Site de Agendamento Online', thumbLabel: '✨ Glow Estética', thumbSub: 'Seu momento de bem-estar', link: '#', gradient: 'linear-gradient(135deg, #0a001a, #200040)', image: '' },
+      { name: 'The Barber', type: 'Site de Agendamento Online', thumbLabel: 'THE BARBER', thumbSub: 'ESTILO & PRECISÃO', link: '#', gradient: 'linear-gradient(135deg, #1a1000, #3d2800)', image: '' }
+    ]
+  },
+  cta: {
+    title: 'Pronto para levar seu negócio ao próximo nível?',
+    desc: 'Conta sua ideia e criamos juntos o site que seu negócio precisa. Sem compromisso, te assessoramos.',
+    btn1: 'Falar pelo WhatsApp', btn2: 'Quero mais informações'
+  },
+  rodape: { text: '© 2024 tecnoARG – Todos os direitos reservados. Feito com ❤️ para negócios que querem crescer.', year: '2024' }
+};
+
+let siteData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+let isDirty = false;
+let editingProjectIndex = -1;
+let currentImageBase64 = '';
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
+function init() {
+  // Load saved data
+  const saved = localStorage.getItem('tecnoarg_data');
+  if (saved) siteData = JSON.parse(saved);
+
+  // Check login
+  const loggedIn = sessionStorage.getItem('tecnoarg_auth');
+  if (loggedIn === 'yes') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    renderAll();
+  }
+}
+
+function renderAll() {
+  renderGeral();
+  renderHero();
+  renderFeatures();
+  renderServicos();
+  renderBeneficios();
+  renderProjetos();
+  renderCTA();
+  renderRodape();
+  updateDashboard();
+}
+
+// ─────────────────────────────────────────────
+// LOGIN
+// ─────────────────────────────────────────────
+function doLogin() {
+  const user = document.getElementById('login-user').value;
+  const pass = document.getElementById('login-pass').value;
+  const creds = JSON.parse(localStorage.getItem('tecnoarg_creds') || JSON.stringify(DEFAULT_CREDS));
+
+  if (user === creds.user && pass === creds.pass) {
+    sessionStorage.setItem('tecnoarg_auth', 'yes');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    renderAll();
+  } else {
+    document.getElementById('login-error').style.display = 'block';
+  }
+}
+
+document.getElementById('login-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('login-user').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+function doLogout() {
+  sessionStorage.removeItem('tecnoarg_auth');
+  location.reload();
+}
+
+function changePassword() {
+  const creds = JSON.parse(localStorage.getItem('tecnoarg_creds') || JSON.stringify(DEFAULT_CREDS));
+  const old = document.getElementById('pw-old').value;
+  const nw = document.getElementById('pw-new').value;
+  const conf = document.getElementById('pw-confirm').value;
+  const msg = document.getElementById('pw-msg');
+
+  if (old !== creds.pass) { msg.style.color='var(--red)'; msg.textContent='Senha atual incorreta.'; return; }
+  if (nw.length < 6) { msg.style.color='var(--red)'; msg.textContent='A nova senha deve ter pelo menos 6 caracteres.'; return; }
+  if (nw !== conf) { msg.style.color='var(--red)'; msg.textContent='As senhas não coincidem.'; return; }
+
+  creds.pass = nw;
+  localStorage.setItem('tecnoarg_creds', JSON.stringify(creds));
+  msg.style.color = 'var(--green)';
+  msg.textContent = '✅ Senha alterada com sucesso!';
+  document.getElementById('pw-old').value = '';
+  document.getElementById('pw-new').value = '';
+  document.getElementById('pw-confirm').value = '';
+}
+
+// ─────────────────────────────────────────────
+// NAVIGATION
+// ─────────────────────────────────────────────
+function showPanel(id) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ─────────────────────────────────────────────
+// DIRTY STATE
+// ─────────────────────────────────────────────
+function markDirty() {
+  isDirty = true;
+  document.getElementById('save-bar').classList.add('visible');
+}
+
+// ─────────────────────────────────────────────
+// RENDER FUNCTIONS
+// ─────────────────────────────────────────────
+function renderGeral() {
+  const g = siteData.geral;
+  setVal('g-nome', g.nome); setVal('g-logo1', g.logo1); setVal('g-logo2', g.logo2);
+  setVal('g-title', g.title); setVal('g-whatsapp', g.whatsapp); setVal('g-whatsapp-text', g.whatsappText);
+  setVal('nav-servicos', g.navServicos); setVal('nav-beneficios', g.navBeneficios);
+  setVal('nav-trabalhos', g.navTrabalhos); setVal('nav-contato', g.navContato);
+}
+
+function renderHero() {
+  const h = siteData.hero;
+  setVal('h-badge', h.badge); setVal('h-title1', h.title1); setVal('h-title2', h.title2);
+  setVal('h-title3', h.title3); setVal('h-desc', h.desc);
+  setVal('h-btn1', h.btn1); setVal('h-btn2', h.btn2);
+}
+
+function renderFeatures() {
+  const container = document.getElementById('features-editor');
+  container.innerHTML = siteData.features.map((f, i) => `
+    <div class="edit-card">
+      <div class="edit-card-title"><span class="icon">${f.icon}</span> Feature ${i+1}</div>
+      <div class="form-grid-3">
+        <div class="form-row">
+          <label class="form-label">Ícone (emoji)</label>
+          <input type="text" class="form-input" value="${f.icon}" oninput="updateFeature(${i},'icon',this.value)" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-input" value="${f.title}" oninput="updateFeature(${i},'title',this.value)" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Descrição</label>
+          <input type="text" class="form-input" value="${f.desc}" oninput="updateFeature(${i},'desc',this.value)" />
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateFeature(i, key, val) {
+  siteData.features[i][key] = val;
+  markDirty();
+}
+
+function renderServicos() {
+  setVal('sv-label', siteData.servicos.label);
+  setVal('sv-title', siteData.servicos.title);
+  setVal('sv-subtitle', siteData.servicos.subtitle);
+
+  const container = document.getElementById('services-editor');
+  container.innerHTML = siteData.servicos.cards.map((c, ci) => `
+    <div class="edit-card">
+      <div class="edit-card-title"><span class="icon">${c.icon}</span> Serviço ${ci+1}: ${c.title}</div>
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label class="form-label">Ícone</label>
+          <input type="text" class="form-input" value="${c.icon}" oninput="updateService(${ci},'icon',this.value)" />
+        </div>
+        <div class="form-row">
+          <label class="form-label">Título</label>
+          <input type="text" class="form-input" value="${c.title}" oninput="updateService(${ci},'title',this.value)" />
+        </div>
+      </div>
+      <div class="form-row">
+        <label class="form-label">Subtítulo</label>
+        <input type="text" class="form-input" value="${c.subtitle}" oninput="updateService(${ci},'subtitle',this.value)" />
+      </div>
+      <div class="section-divider"><span>Features (lista)</span></div>
+      ${c.features.map((feat, fi) => `
+        <div style="display:flex;gap:.6rem;margin-bottom:.5rem;">
+          <input type="text" class="form-input" value="${feat}" oninput="updateServiceFeature(${ci},${fi},this.value)" style="flex:1;" />
+          <button class="btn btn-danger btn-sm" onclick="removeServiceFeature(${ci},${fi})">✕</button>
+        </div>
+      `).join('')}
+      <button class="btn btn-ghost btn-sm" onclick="addServiceFeature(${ci})" style="margin-top:.3rem;">+ Adicionar item</button>
+    </div>
+  `).join('');
+}
+
+function updateService(ci, key, val) { siteData.servicos.cards[ci][key] = val; markDirty(); }
+function updateServiceFeature(ci, fi, val) { siteData.servicos.cards[ci].features[fi] = val; markDirty(); }
+function removeServiceFeature(ci, fi) {
+  siteData.servicos.cards[ci].features.splice(fi, 1);
+  renderServicos(); markDirty();
+}
+function addServiceFeature(ci) {
+  siteData.servicos.cards[ci].features.push('Nova feature');
+  renderServicos(); markDirty();
+}
+
+function renderBeneficios() {
+  setVal('b-label', siteData.beneficios.label);
+  setVal('b-title', siteData.beneficios.title);
+
+  const container = document.getElementById('why-editor');
+  container.innerHTML = siteData.beneficios.cards.map((c, i) => `
+    <div class="why-item">
+      <input type="text" class="form-input" value="${c.icon}" oninput="updateWhy(${i},'icon',this.value)" style="text-align:center;width:50px;padding:.4rem .3rem;" placeholder="🎯" />
+      <input type="text" class="form-input" value="${c.title}" oninput="updateWhy(${i},'title',this.value)" placeholder="Título" />
+      <input type="text" class="form-input" value="${c.desc}" oninput="updateWhy(${i},'desc',this.value)" placeholder="Descrição" />
+      <button class="btn btn-danger btn-sm" onclick="removeWhy(${i})">✕</button>
+    </div>
+  `).join('');
+}
+
+function updateWhy(i, key, val) { siteData.beneficios.cards[i][key] = val; markDirty(); }
+function removeWhy(i) { siteData.beneficios.cards.splice(i, 1); renderBeneficios(); markDirty(); }
+
+function renderProjetos() {
+  setVal('p-label', siteData.projetos.label);
+  setVal('p-title', siteData.projetos.title);
+
+  const container = document.getElementById('projects-list');
+  const items = siteData.projetos.items;
+
+  if (items.length === 0) {
+    container.innerHTML = `<div class="edit-card" style="text-align:center;color:var(--muted);padding:2rem;">Nenhum projeto cadastrado ainda. Clique em "+ Adicionar Projeto" para começar.</div>`;
+    return;
+  }
+
+  container.innerHTML = items.map((p, i) => `
+    <div class="project-item">
+      <div class="project-thumb-preview" style="background:${p.gradient};">
+        ${p.image ? `<img src="${p.image}" />` : `<span style="font-size:.65rem;color:rgba(255,255,255,.7);text-align:center;padding:.3rem;">${p.thumbLabel}</span>`}
+      </div>
+      <div class="project-item-info">
+        <div class="project-item-name">${p.name}</div>
+        <div class="project-item-type">${p.type}</div>
+        <div class="project-item-link">${p.link || '—'}</div>
+      </div>
+      <div class="project-item-actions">
+        <button class="btn btn-ghost btn-sm" onclick="editProject(${i})">✏️ Editar</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteProject(${i})">🗑️ Remover</button>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('dash-projects').textContent = items.length;
+}
+
+function renderCTA() {
+  setVal('c-title', siteData.cta.title); setVal('c-desc', siteData.cta.desc);
+  setVal('c-btn1', siteData.cta.btn1); setVal('c-btn2', siteData.cta.btn2);
+}
+
+function renderRodape() {
+  setVal('r-text', siteData.rodape.text); setVal('r-year', siteData.rodape.year);
+}
+
+function updateDashboard() {
+  document.getElementById('dash-projects').textContent = siteData.projetos.items.length;
+  const last = localStorage.getItem('tecnoarg_lastEdit');
+  if (last) document.getElementById('dash-lastEdit').textContent = last;
+}
+
+// ─────────────────────────────────────────────
+// COLLECT DATA FROM FORM
+// ─────────────────────────────────────────────
+function collectData() {
+  siteData.geral = {
+    nome: getVal('g-nome'), logo1: getVal('g-logo1'), logo2: getVal('g-logo2'),
+    title: getVal('g-title'), whatsapp: getVal('g-whatsapp'), whatsappText: getVal('g-whatsapp-text'),
+    navServicos: getVal('nav-servicos'), navBeneficios: getVal('nav-beneficios'),
+    navTrabalhos: getVal('nav-trabalhos'), navContato: getVal('nav-contato')
+  };
+  siteData.hero = {
+    badge: getVal('h-badge'), title1: getVal('h-title1'), title2: getVal('h-title2'),
+    title3: getVal('h-title3'), desc: getVal('h-desc'),
+    btn1: getVal('h-btn1'), btn2: getVal('h-btn2')
+  };
+  siteData.servicos.label = getVal('sv-label');
+  siteData.servicos.title = getVal('sv-title');
+  siteData.servicos.subtitle = getVal('sv-subtitle');
+  siteData.beneficios.label = getVal('b-label');
+  siteData.beneficios.title = getVal('b-title');
+  siteData.projetos.label = getVal('p-label');
+  siteData.projetos.title = getVal('p-title');
+  siteData.cta = { title: getVal('c-title'), desc: getVal('c-desc'), btn1: getVal('c-btn1'), btn2: getVal('c-btn2') };
+  siteData.rodape = { text: getVal('r-text'), year: getVal('r-year') };
+}
+
+// ─────────────────────────────────────────────
+// SAVE / DISCARD
+// ─────────────────────────────────────────────
+function saveChanges() {
+  collectData();
+  localStorage.setItem('tecnoarg_data', JSON.stringify(siteData));
+  const now = new Date().toLocaleString('pt-BR');
+  localStorage.setItem('tecnoarg_lastEdit', now);
+  isDirty = false;
+  document.getElementById('save-bar').classList.remove('visible');
+  showToast('✅ Alterações salvas com sucesso!');
+  updateDashboard();
+}
+
+function discardChanges() {
+  if (!confirm('Tem certeza? Todas as alterações não salvas serão perdidas.')) return;
+  const saved = localStorage.getItem('tecnoarg_data');
+  if (saved) siteData = JSON.parse(saved);
+  else siteData = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  isDirty = false;
+  document.getElementById('save-bar').classList.remove('visible');
+  renderAll();
+}
+
+// ─────────────────────────────────────────────
+// PROJECTS CRUD
+// ─────────────────────────────────────────────
+function openAddProject() {
+  editingProjectIndex = -1;
+  document.getElementById('modal-title-text').textContent = 'Adicionar Projeto';
+  clearModal();
+  document.getElementById('project-modal').classList.add('open');
+}
+
+function editProject(i) {
+  editingProjectIndex = i;
+  const p = siteData.projetos.items[i];
+  document.getElementById('modal-title-text').textContent = 'Editar Projeto';
+  document.getElementById('m-name').value = p.name;
+  document.getElementById('m-type').value = p.type;
+  document.getElementById('m-thumb-label').value = p.thumbLabel;
+  document.getElementById('m-thumb-sub').value = p.thumbSub;
+  document.getElementById('m-link').value = p.link;
+  document.getElementById('m-gradient').value = p.gradient;
+  currentImageBase64 = p.image || '';
+  if (p.image) {
+    document.getElementById('m-img-preview').src = p.image;
+    document.getElementById('m-img-preview').style.display = 'block';
+    document.getElementById('m-img-placeholder').style.display = 'none';
+  } else {
+    document.getElementById('m-img-preview').style.display = 'none';
+    document.getElementById('m-img-placeholder').style.display = 'flex';
+  }
+  document.getElementById('project-modal').classList.add('open');
+}
+
+function closeProjectModal() {
+  document.getElementById('project-modal').classList.remove('open');
+  clearModal();
+}
+
+function clearModal() {
+  ['m-name','m-type','m-thumb-label','m-thumb-sub','m-link'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('m-gradient').value = 'linear-gradient(135deg, #1a0a00, #3d1500)';
+  document.getElementById('m-color').value = '#1a0a00';
+  document.getElementById('m-img-preview').src = '';
+  document.getElementById('m-img-preview').style.display = 'none';
+  document.getElementById('m-img-placeholder').style.display = 'flex';
+  currentImageBase64 = '';
+}
+
+function saveProject() {
+  const name = document.getElementById('m-name').value.trim();
+  if (!name) { showToast('⚠️ Informe o nome do projeto!', true); return; }
+
+  const proj = {
+    name,
+    type: document.getElementById('m-type').value.trim(),
+    thumbLabel: document.getElementById('m-thumb-label').value.trim(),
+    thumbSub: document.getElementById('m-thumb-sub').value.trim(),
+    link: document.getElementById('m-link').value.trim(),
+    gradient: document.getElementById('m-gradient').value.trim(),
+    image: currentImageBase64
+  };
+
+  if (editingProjectIndex >= 0) {
+    siteData.projetos.items[editingProjectIndex] = proj;
+  } else {
+    siteData.projetos.items.push(proj);
+  }
+
+  closeProjectModal();
+  renderProjetos();
+  markDirty();
+  showToast(editingProjectIndex >= 0 ? '✅ Projeto atualizado!' : '✅ Projeto adicionado!');
+}
+
+function deleteProject(i) {
+  if (!confirm('Remover este projeto?')) return;
+  siteData.projetos.items.splice(i, 1);
+  renderProjetos();
+  markDirty();
+  showToast('🗑️ Projeto removido.');
+}
+
+// ─────────────────────────────────────────────
+// IMAGE UPLOAD
+// ─────────────────────────────────────────────
+function handleImageUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    currentImageBase64 = ev.target.result;
+    document.getElementById('m-img-preview').src = currentImageBase64;
+    document.getElementById('m-img-preview').style.display = 'block';
+    document.getElementById('m-img-placeholder').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+function updateColorPreview() {
+  const color = document.getElementById('m-color').value;
+  document.getElementById('m-gradient').value = `linear-gradient(135deg, ${color}cc, ${color})`;
+}
+
+// ─────────────────────────────────────────────
+// EXPORT CONFIG (JSON)
+// ─────────────────────────────────────────────
+function exportConfig() {
+  collectData();
+  const json = JSON.stringify(siteData, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'tecnoarg-config.json';
+  a.click(); URL.revokeObjectURL(url);
+  showToast('📦 Config exportada!');
+}
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
+function setVal(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.value = val || '';
+}
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? el.value : '';
+}
+
+let toastTimeout;
+function showToast(msg, error=false) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (error ? ' toast-error' : '') + ' show';
+  clearTimeout(toastTimeout);
+  toastTimeout = setTimeout(() => { t.classList.remove('show'); }, 2500);
+}
+
+// Close modal clicking backdrop
+document.getElementById('project-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeProjectModal();
+});
+
+// ─────────────────────────────────────────────
+// BOOT
+// ─────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
