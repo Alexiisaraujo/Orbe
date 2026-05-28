@@ -130,40 +130,24 @@ input[type=range]::-webkit-slider-thumb:hover{transform:scale(1.35);}
       <button data-model="atom">⚛ Átomo</button>
       <button data-model="neural">🕸 Neuronal</button>
       <button data-model="tornado">🌪 Tornado</button>
-    </div>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="panel-full">
-    <label>Zodíaco</label>
-    <div class="seg" id="zodSeg">
-      <button data-model="aries">♈ Aries</button>
-      <button data-model="taurus">♉ Tauro</button>
-      <button data-model="gemini">♊ Géminis</button>
-      <button data-model="cancer">♋ Cáncer</button>
-      <button data-model="leo">♌ Leo</button>
-      <button data-model="virgo">♍ Virgo</button>
-      <button data-model="libra">♎ Libra</button>
-      <button data-model="scorpio">♏ Escorpio</button>
-      <button data-model="sagittarius">♐ Sagitario</button>
-      <button data-model="capricorn">♑ Capricornio</button>
-      <button data-model="aquarius">♒ Acuario</button>
-      <button data-model="pisces">♓ Piscis</button>
-    </div>
-  </div>
-
-  <div class="panel-full">
-    <label>Icónicas</label>
-    <div class="seg" id="iconSeg">
-      <button data-model="orion">⭐ Orión</button>
-      <button data-model="ursamajor">🐻 Osa Mayor</button>
-      <button data-model="ursaminor">🐾 Osa Menor</button>
-      <button data-model="crux">✚ Cruz del Sur</button>
-      <button data-model="cassiopeia">Ш Casiopea</button>
-      <button data-model="andromeda">🌌 Andrómeda</button>
-      <button data-model="pegasus">🐴 Pegaso</button>
-      <button data-model="hercules">💪 Hércules</button>
+      <!-- comida -->
+      <button data-model="burger">🍔 Hamburguesa</button>
+      <button data-model="pizza">🍕 Pizza</button>
+      <button data-model="donut">🍩 Donut</button>
+      <button data-model="icecream">🍦 Helado</button>
+      <button data-model="apple">🍎 Manzana</button>
+      <button data-model="mushroom">🍄 Hongo</button>
+      <!-- decoración -->
+      <button data-model="leaf">🍃 Hoja</button>
+      <button data-model="flame">🕯 Llama</button>
+      <button data-model="curtain">〰 Cortina</button>
+      <button data-model="mandala">✦ Mandala</button>
+      <button data-model="feather">🪶 Pluma</button>
+      <button data-model="crystal">💎 Cristal</button>
+      <button data-model="petal">🌸 Pétalo</button>
+      <button data-model="cobweb">🕸 Telaraña</button>
+      <button data-model="helix">🧬 Helix doble</button>
+      <button data-model="crown">👑 Corona</button>
     </div>
   </div>
 
@@ -625,166 +609,367 @@ function genTornado(n,R) {
   return out;
 }
 
-// ── CONSTELACIONES ──
-// Coordenadas: [RA en horas, Dec en grados] → convertidas a XYZ en esfera unitaria
-// Índices de conexión: pares [i,j] que forman las líneas
-const CONSTELLATIONS = {
-  aries: {
-    stars: [[2.119,23.46],[1.910,20.81],[1.887,19.29],[1.922,19.18],[2.833,27.26]],
-    lines: [[0,1],[1,2],[2,3],[0,4]]
-  },
-  taurus: {
-    stars: [[4.598,16.51],[3.791,24.11],[4.477,15.87],[4.329,15.63],[4.013,12.49],[5.438,28.61],[5.627,21.14],[4.703,22.96],[4.476,19.18]],
-    lines: [[0,2],[2,3],[3,4],[0,1],[1,8],[8,6],[0,5],[5,6],[6,7]]
-  },
-  gemini: {
-    stars: [[7.755,28.03],[7.576,31.89],[6.628,16.40],[6.754,12.90],[7.069,20.57],[6.879,13.18],[6.382,22.51],[6.248,22.51],[7.336,21.98],[7.185,30.24]],
-    lines: [[0,9],[9,4],[4,2],[2,3],[1,6],[6,7],[7,5],[0,1],[9,8]]
-  },
-  cancer: {
-    stars: [[8.745,18.15],[8.978,11.86],[8.275,9.19],[8.721,21.47],[8.198,17.65]],
-    lines: [[0,1],[0,3],[1,2],[3,4],[2,4]]
-  },
-  leo: {
-    stars: [[10.139,11.97],[10.332,19.84],[9.879,26.01],[10.122,23.42],[9.764,23.77],[10.897,15.43],[11.235,20.52],[11.817,14.57],[9.529,9.99]],
-    lines: [[0,1],[1,2],[2,3],[3,4],[4,0],[0,5],[5,6],[6,7],[0,8]]
-  },
-  virgo: {
-    stars: [[13.420,-11.16],[11.845,-1.45],[12.694,-1.45],[12.332,-0.67],[13.036,10.96],[14.177,13.78],[13.578,-0.60],[12.926,-3.40],[13.165,0.55]],
-    lines: [[0,6],[6,8],[8,2],[2,1],[2,3],[3,4],[4,5],[8,7],[0,7]]
-  },
-  libra: {
-    stars: [[15.283,-9.38],[14.848,-15.99],[15.068,-25.28],[15.644,-28.13],[14.351,-13.37]],
-    lines: [[0,1],[1,2],[2,3],[0,4],[1,4]]
-  },
-  scorpio: {
-    stars: [[16.490,-26.43],[16.836,-34.29],[17.622,-43.00],[17.708,-39.03],[17.795,-40.13],[17.560,-37.10],[16.004,-22.62],[16.351,-25.59],[17.531,-37.30],[17.793,-37.04]],
-    lines: [[0,1],[1,2],[0,6],[6,7],[7,1],[2,3],[3,4],[4,5],[2,8],[8,9]]
-  },
-  sagittarius: {
-    stars: [[19.044,-29.88],[18.921,-26.30],[18.350,-36.76],[18.466,-25.42],[18.962,-21.02],[18.029,-30.42],[19.116,-27.67],[18.761,-36.46],[18.293,-21.11]],
-    lines: [[0,1],[1,4],[4,8],[0,2],[2,5],[5,3],[3,1],[0,6],[6,4],[2,7]]
-  },
-  capricorn: {
-    stars: [[20.294,-12.51],[20.350,-14.78],[21.784,-16.13],[20.863,-17.23],[21.099,-17.23],[21.370,-16.84],[20.668,-14.78]],
-    lines: [[0,1],[1,6],[6,3],[3,4],[4,5],[5,2],[0,2]]
-  },
-  aquarius: {
-    stars: [[22.877,-15.82],[22.589,-0.31],[22.361,-1.39],[22.097,-13.86],[21.526,-5.57],[22.480,-0.02],[23.239,-6.05],[22.826,-13.59]],
-    lines: [[0,7],[7,3],[3,4],[4,2],[2,1],[1,5],[5,0],[0,6],[6,7]]
-  },
-  pisces: {
-    stars: [[1.756,9.16],[23.666,5.63],[23.460,6.86],[1.194,8.19],[1.529,15.35],[0.812,7.59],[2.034,2.76],[1.020,3.49],[23.985,6.82]],
-    lines: [[0,3],[3,4],[0,6],[6,7],[7,5],[5,8],[8,2],[2,1],[1,8]]
-  },
-  orion: {
-    stars: [[5.919,7.41],[5.242,6.35],[5.533,-0.30],[5.680,-1.94],[5.796,1.71],[5.603,-5.91],[4.844,6.96],[5.248,2.44],[5.588,-5.41],[5.906,3.20]],
-    lines: [[0,9],[9,6],[6,7],[0,4],[4,2],[2,3],[3,5],[5,8],[0,1],[1,7],[7,4],[3,8]]
-  },
-  ursamajor: {
-    stars: [[11.062,56.38],[11.031,56.37],[10.372,55.96],[9.849,59.04],[9.526,51.68],[8.999,48.04],[11.897,53.69],[12.900,55.96],[13.398,54.93],[12.257,57.03]],
-    lines: [[0,1],[1,2],[2,3],[3,4],[4,5],[0,6],[6,7],[7,8],[8,9],[9,0]]
-  },
-  ursaminor: {
-    stars: [[2.530,89.26],[14.845,74.16],[15.734,77.79],[16.292,75.76],[17.537,86.59],[16.766,82.04],[15.345,71.83]],
-    lines: [[0,5],[5,4],[4,2],[2,1],[1,6],[6,3],[3,2]]
-  },
-  crux: {
-    stars: [[12.443,-63.10],[12.519,-57.11],[12.252,-58.75],[12.353,-60.40],[12.772,-60.01]],
-    lines: [[0,1],[2,3],[3,4],[0,2],[1,4]]
-  },
-  cassiopeia: {
-    stars: [[0.675,56.54],[1.430,60.24],[0.945,60.72],[0.153,59.15],[1.906,63.67]],
-    lines: [[0,2],[2,1],[1,4],[0,3]]
-  },
-  andromeda: {
-    stars: [[0.139,29.09],[0.830,30.86],[1.162,35.62],[1.633,48.63],[1.029,38.50],[2.065,42.33],[0.656,30.86],[2.503,50.69]],
-    lines: [[0,6],[6,1],[1,4],[4,2],[2,5],[5,7],[1,3]]
-  },
-  pegasus: {
-    stars: [[0.139,29.09],[22.691,10.83],[23.063,28.08],[21.744,9.87],[22.116,6.20],[22.833,24.60],[23.680,15.21],[23.409,23.40]],
-    lines: [[0,2],[2,7],[7,5],[5,1],[1,3],[3,4],[0,6],[6,1]]
-  },
-  hercules: {
-    stars: [[17.244,14.39],[16.503,21.49],[16.688,31.60],[17.005,30.93],[17.657,46.01],[17.394,37.15],[16.365,19.15],[17.937,29.25],[18.126,28.76]],
-    lines: [[0,6],[6,1],[1,2],[2,3],[3,4],[4,5],[5,2],[0,3],[3,7],[7,8],[5,8]]
-  }
-};
+// ── COMIDA ──
 
-// Convierte RA (horas) / Dec (grados) a XYZ en esfera unitaria
-function raDec2xyz(ra, dec) {
-  const raR = ra / 12 * Math.PI;   // horas → radianes
-  const decR = dec * Math.PI / 180;
-  return [
-    Math.cos(decR) * Math.cos(raR),
-    Math.sin(decR),
-    Math.cos(decR) * Math.sin(raR)
+// Hamburguesa: pan arriba (Y neg), capas al medio, pan abajo (Y pos)
+function genBurger(n,R) {
+  const out=[];
+  // Y negativo = arriba en pantalla
+  const layers=[
+    {y:-.80, h:.15, r:.58, col:0.1},  // pan superior domo
+    {y:-.52, h:.10, r:.70, col:0.3},  // lechuga
+    {y:-.38, h:.08, r:.66, col:0.5},  // queso
+    {y:-.22, h:.13, r:.68, col:0.65}, // carne
+    {y:-.06, h:.09, r:.70, col:0.8},  // tomate
+    {y: .14, h:.14, r:.63, col:0.95}, // pan inferior
   ];
+  const perLayer=Math.floor(n*.85/layers.length);
+  layers.forEach(({y,h,r,col})=>{
+    for(let i=0;i<perLayer;i++){
+      const a=rnd()*Math.PI*2;
+      const rr=Math.pow(rnd(),.5)*R*r*(1+(rnd()-.5)*cfg.fuzz*.2);
+      const yy=(y+(rnd()-.5)*h)*R;
+      out.push(pt(Math.cos(a)*rr, yy, Math.sin(a)*rr, col));
+    }
+  });
+  // domo redondeado del pan superior
+  const domeN=Math.floor(n*.15);
+  for(let i=0;i<domeN;i++){
+    const a=rnd()*Math.PI*2, el=rnd()*Math.PI*.5;
+    const r=R*.50*(1+(rnd()-.5)*cfg.fuzz*.15);
+    // el domo va hacia arriba (Y más negativo)
+    out.push(pt(Math.cos(el)*Math.cos(a)*r, -Math.abs(Math.sin(el))*r*.5-R*.68, Math.cos(el)*Math.sin(a)*r, 0.05));
+  }
+  return out.slice(0,n);
 }
 
-// Centra y escala la constelación para que quepa en el radio R
-function buildConstellation(key, n, R) {
-  const con = CONSTELLATIONS[key];
-  if (!con) return [];
+// Pizza: disco plano con borde
+function genPizza(n,R) {
+  const out=[];
+  const slices=8;
+  const crustN=Math.floor(n*.22);
+  const topN=n-crustN;
+  for(let i=0;i<topN;i++){
+    const a=rnd()*Math.PI*2;
+    const r=Math.pow(rnd(),.5)*R*.80*(1+(rnd()-.5)*cfg.fuzz*.2);
+    const y=(rnd()-.5)*R*.06;
+    out.push(pt(Math.cos(a)*r, y, Math.sin(a)*r, (Math.floor(a/(Math.PI*2/slices)))/slices));
+  }
+  // borde elevado hacia arriba (Y neg)
+  for(let i=0;i<crustN;i++){
+    const a=rnd()*Math.PI*2;
+    const r=R*(.80+rnd()*.15)*(1+(rnd()-.5)*cfg.fuzz*.15);
+    const y=-(R*.06+rnd()*R*.14);
+    out.push(pt(Math.cos(a)*r, y, Math.sin(a)*r, 0.9+rnd()*.1));
+  }
+  return out.slice(0,n);
+}
 
-  // Convertir a XYZ
-  const raw = con.stars.map(([ra, dec]) => raDec2xyz(ra, dec));
+// Donut: toroide
+function genDonut(n,R) {
+  const out=[];
+  const mR=R*.58, tR=R*.28;
+  for(let i=0;i<n;i++){
+    const u=rnd()*Math.PI*2, v=rnd()*Math.PI*2;
+    const f=1+(rnd()-.5)*cfg.fuzz*.25;
+    out.push(pt(
+      (mR+tR*Math.cos(v)*f)*Math.cos(u),
+      tR*Math.sin(v)*f,
+      (mR+tR*Math.cos(v)*f)*Math.sin(u),
+      Math.cos(v)*.5+.5
+    ));
+  }
+  return out;
+}
 
-  // Centroide
-  const cx = raw.reduce((s,p)=>s+p[0],0)/raw.length;
-  const cy = raw.reduce((s,p)=>s+p[1],0)/raw.length;
-  const cz = raw.reduce((s,p)=>s+p[2],0)/raw.length;
-  const centered = raw.map(([x,y,z])=>[x-cx, y-cy, z-cz]);
+// Helado: bola arriba (Y neg) + cono abajo (Y pos)
+function genIcecream(n,R) {
+  const out=[];
+  const ballN=Math.floor(n*.52), coneN=n-ballN;
+  const phi=Math.PI*(3-Math.sqrt(5));
+  // bola (parte superior, Y negativo)
+  for(let i=0;i<ballN;i++){
+    const yi=1-(i/(ballN-1))*2, ri=Math.sqrt(Math.max(0,1-yi*yi)), th=phi*i;
+    const f=1+(rnd()-.5)*cfg.fuzz*.22;
+    out.push(pt(ri*Math.cos(th)*R*.48*f, yi*R*.48*f - R*.36, ri*Math.sin(th)*R*.48*f, yi*.5+.5));
+  }
+  // cono (parte inferior, Y positivo, punta más abajo)
+  for(let i=0;i<coneN;i++){
+    const t=rnd(); // 0=boca arriba, 1=punta abajo
+    const y=R*.12 + t*R*.78;    // positivo = abajo
+    const r=(1-t)*R*.44*(1+(rnd()-.5)*cfg.fuzz*.2);
+    const a=rnd()*Math.PI*2;
+    out.push(pt(Math.cos(a)*r, y, Math.sin(a)*r, .7+t*.3));
+  }
+  return out;
+}
 
-  // Escala: max distancia al origen → R * 0.72
-  const maxD = Math.max(...centered.map(([x,y,z])=>Math.sqrt(x*x+y*y+z*z))) || 1;
-  const scale = R * 0.72 / maxD;
-  const scaled = centered.map(([x,y,z])=>[x*scale, y*scale, z*scale]);
+// Manzana: cuerpo redondo, rabito arriba (Y neg), base abajo (Y pos)
+function genApple(n,R) {
+  const out=[];
+  const bodyN=Math.floor(n*.88), stemN=n-bodyN;
+  const phi=Math.PI*(3-Math.sqrt(5));
+  for(let i=0;i<bodyN;i++){
+    const yi=1-(i/(bodyN-1))*2, ri=Math.sqrt(Math.max(0,1-yi*yi)), th=phi*i;
+    // hendidura arriba (donde yi=1, que mapea a Y negativo)
+    const dip=yi>.65?Math.pow((yi-.65)/.35,2)*R*.16:0;
+    const f=1+(rnd()-.5)*cfg.fuzz*.2;
+    const rx=ri*Math.cos(th)*R*.72*f;
+    const ry=-yi*R*.78*f + dip; // negamos yi: yi positivo → Y negativo (arriba)
+    const rz=ri*Math.sin(th)*R*.72*f;
+    out.push(pt(rx, ry, rz, yi*.5+.5));
+  }
+  // rabito arriba (Y muy negativo)
+  for(let i=0;i<stemN;i++){
+    const t=rnd();
+    out.push(pt(t*R*.08+(rnd()-.5)*R*.02, -(R*.80+t*R*.25), (rnd()-.5)*R*.02, .1+t*.2));
+  }
+  return out;
+}
 
-  const out = [];
-  const starSize = cfg.dot * 2.2; // las estrellas principales son más grandes (se maneja via tc)
+// Hongo: sombrero arriba (Y neg), tallo abajo (Y pos)
+function genMushroom(n,R) {
+  const out=[];
+  const capN=Math.floor(n*.68), stemN=n-capN;
+  // sombrero hacia arriba
+  for(let i=0;i<capN;i++){
+    const a=rnd()*Math.PI*2, el=rnd()*Math.PI*.5;
+    const r=R*.86*(1+(rnd()-.5)*cfg.fuzz*.2);
+    const x=Math.cos(el)*Math.cos(a)*r;
+    const y=-(Math.abs(Math.sin(el))*r*.52+R*.06); // negativo = arriba
+    const z=Math.cos(el)*Math.sin(a)*r;
+    out.push(pt(x, y, z, el/(Math.PI*.5)));
+  }
+  // tallo hacia abajo (Y positivo)
+  for(let i=0;i<stemN;i++){
+    const t=rnd();
+    const y=R*.08+t*R*.70;
+    const r=(R*.18+rnd()*R*.07)*(1+(rnd()-.5)*cfg.fuzz*.2);
+    const a=rnd()*Math.PI*2;
+    out.push(pt(Math.cos(a)*r, y, Math.sin(a)*r, .8+t*.2));
+  }
+  return out;
+}
 
-  // 1. Partículas en los nodos estelares (clúster brillante)
-  const starParticles = Math.min(Math.floor(n * 0.35), 40 * con.stars.length);
-  const perStar = Math.floor(starParticles / con.stars.length);
-  scaled.forEach(([sx,sy,sz], si) => {
-    const tc = si / (con.stars.length - 1 || 1);
-    // Centro de la estrella - punto muy brillante
-    out.push([sx, sy, sz, rnd()*Math.PI*2, 0.001, tc, 0.3]);
-    // Halo de partículas alrededor
-    for(let j = 1; j < perStar; j++) {
-      const r = rnd() * R * 0.045 * (1 + cfg.fuzz * 0.5);
-      const a = rnd() * Math.PI * 2, el = (rnd()-.5) * Math.PI;
-      out.push([
-        sx + Math.cos(el)*Math.cos(a)*r,
-        sy + Math.sin(el)*r,
-        sz + Math.cos(el)*Math.sin(a)*r,
-        rnd()*Math.PI*2, R*0.008, tc, 0.3+rnd()*0.4
-      ]);
+// ── DECORACIÓN ──
+
+// Hoja: forma orgánica alargada con nervadura central
+function genLeaf(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const t=rnd(), side=rnd()<.5?1:-1;
+    const y=(t-.5)*R*1.6;
+    // ancho máximo en el centro, punta arriba y abajo
+    const width=Math.sin(t*Math.PI)*R*.7*(1+(rnd()-.5)*cfg.fuzz*.3);
+    const x=side*(rnd()*width);
+    // nervadura: partículas extra en el eje central
+    const onVein=rnd()<.15;
+    const xf=onVein?0:x;
+    const z=(rnd()-.5)*R*.06;
+    out.push(pt(xf, y, z, t));
+  }
+  return out;
+}
+
+// Llama: base abajo (Y pos), punta arriba (Y neg)
+function genFlame(n,R) {
+  const out=[];
+  for(let i=0;i<n;i++){
+    const t=Math.pow(rnd(), .55);
+    const y=-(t-.5)*R*1.8;  // invertido: t grande → Y negativo (arriba)
+    const radius=Math.pow(1-t,.6)*R*.55*(1+(rnd()-.5)*cfg.fuzz*.5);
+    const a=rnd()*Math.PI*2;
+    const swirl=t*Math.PI*3*(rnd()-.5)*.4;
+    out.push(pt(Math.cos(a+swirl)*radius, y, Math.sin(a+swirl)*radius*.4, 1-t));
+  }
+  return out;
+}
+
+// Cortina: ondas verticales que caen como tela
+function genCurtain(n,R) {
+  const out=[];
+  const folds=5;
+  for(let i=0;i<n;i++){
+    const u=rnd(), v=rnd();
+    const x=(u-.5)*R*1.9;
+    const y=(v-.5)*R*1.8;
+    // ondas horizontales tipo pliegues de tela
+    const z=Math.sin(u*Math.PI*folds)*R*.28*(1-v*.4)*(1+(rnd()-.5)*cfg.fuzz*.3);
+    out.push(pt(x, y, z, u));
+  }
+  return out;
+}
+
+// Mandala: anillos concéntricos con simetría radial
+function genMandala(n,R) {
+  const out=[];
+  const rings=6, petals=12;
+  for(let i=0;i<n;i++){
+    const ring=Math.floor(rnd()*rings)+1;
+    const r=(ring/rings)*R*.92;
+    const baseAngle=(Math.floor(rnd()*petals)/petals)*Math.PI*2;
+    const a=baseAngle+(rnd()-.5)*(Math.PI/petals)*(1+cfg.fuzz);
+    const f=1+(rnd()-.5)*cfg.fuzz*.2;
+    const z=(rnd()-.5)*R*.06;
+    out.push(pt(Math.cos(a)*r*f, z, Math.sin(a)*r*f, ring/rings));
+  }
+  return out;
+}
+
+// Pluma: punta arriba (Y neg), base abajo (Y pos)
+function genFeather(n,R) {
+  const out=[];
+  const spineN=Math.floor(n*.25);
+  const barbN=n-spineN;
+  for(let i=0;i<spineN;i++){
+    const t=i/spineN;
+    const y=-(t-.5)*R*1.75; // invertido
+    const curve=Math.pow(t,.8)*R*.08;
+    out.push(pt(curve+(rnd()-.5)*R*.012, y, (rnd()-.5)*R*.012, t));
+  }
+  for(let i=0;i<barbN;i++){
+    const t=rnd();
+    const y=-(t-.5)*R*1.75; // invertido
+    const spineX=Math.pow(t,.8)*R*.08;
+    const maxWidth=Math.sin(t*Math.PI)*R*.55;
+    const side=rnd()<.5?1:-1;
+    const dist=Math.pow(rnd(),.7)*maxWidth;
+    const barbY=y + dist*Math.sin(Math.PI*.18)*side*.3;
+    const f=1+(rnd()-.5)*cfg.fuzz*.25;
+    out.push(pt((spineX+side*dist*Math.cos(Math.PI*.18))*f, barbY, (rnd()-.5)*R*.04, t));
+  }
+  return out;
+}
+
+// Cristal: prisma hexagonal, punta arriba (Y neg)
+function genCrystal(n,R) {
+  const out=[];
+  const faces=6;
+  for(let i=0;i<n;i++){
+    const face=Math.floor(rnd()*faces);
+    const a0=(face/faces)*Math.PI*2, a1=((face+1)/faces)*Math.PI*2;
+    const t=rnd(), v=rnd();
+    const rx=Math.cos(a0)*(1-t)+Math.cos(a1)*t;
+    const rz=Math.sin(a0)*(1-t)+Math.sin(a1)*t;
+    const height=-(v-.5)*R*1.5; // negado: v=1 → Y neg (arriba)
+    const tapear=1-Math.abs(v-.5)*1.3;
+    const f=(R*.8)*(1+(rnd()-.5)*cfg.fuzz*.15)*tapear;
+    out.push(pt(rx*f, height, rz*f, v));
+  }
+  return out;
+}
+
+// Pétalo: flor 3D con pétalos curvados
+function genPetal(n,R) {
+  const out=[];
+  const numPetals=6;
+  const coreN=Math.floor(n*.1);
+  // núcleo central
+  for(let i=0;i<coreN;i++){
+    const r=rnd()*R*.12, a=rnd()*Math.PI*2, el=(rnd()-.5)*Math.PI;
+    out.push(pt(Math.cos(el)*Math.cos(a)*r, Math.sin(el)*r, Math.cos(el)*Math.sin(a)*r, .5));
+  }
+  // pétalos
+  const perPetal=Math.floor((n-coreN)/numPetals);
+  for(let p=0;p<numPetals;p++){
+    const baseAngle=(p/numPetals)*Math.PI*2;
+    const tilt=p%2===0?.3:-.3; // pétalos alternados inclinados
+    for(let i=0;i<perPetal;i++){
+      const t=Math.pow(rnd(),.6), s=(rnd()-.5);
+      const len=t*R*.88*(1+(rnd()-.5)*cfg.fuzz*.3);
+      const width=Math.sin(t*Math.PI)*R*.25*s;
+      const x=Math.cos(baseAngle)*len - Math.sin(baseAngle)*width;
+      const z=Math.sin(baseAngle)*len + Math.cos(baseAngle)*width;
+      const y=Math.sin(t*Math.PI)*R*.28*tilt+(rnd()-.5)*R*.03;
+      out.push(pt(x, y, z, t));
     }
-  });
+  }
+  return out.slice(0,n);
+}
 
-  // 2. Partículas a lo largo de las líneas de conexión (líneas punteadas)
-  const lineParticles = n - out.length;
-  const perLine = con.lines.length > 0 ? Math.floor(lineParticles / con.lines.length) : 0;
-  con.lines.forEach(([ai, bi]) => {
-    if (ai >= scaled.length || bi >= scaled.length) return;
-    const [ax,ay,az] = scaled[ai];
-    const [bx,by,bz] = scaled[bi];
-    for(let k = 0; k < perLine; k++) {
-      const t = rnd();
-      const f = (rnd()-.5) * cfg.fuzz * R * 0.018;
-      const tc = ai / (con.stars.length - 1 || 1) * (1-t) + bi / (con.stars.length - 1 || 1) * t;
-      out.push([
-        ax*(1-t)+bx*t + f,
-        ay*(1-t)+by*t + f,
-        az*(1-t)+bz*t + f,
-        rnd()*Math.PI*2, R*0.006, tc, 0.25+rnd()*0.3
-      ]);
+// Telaraña: espiral con radios
+function genCobweb(n,R) {
+  const out=[];
+  const spokes=8, spiralRings=7;
+  const spokesN=Math.floor(n*.3);
+  const spiralN=n-spokesN;
+  // radios
+  for(let i=0;i<spokesN;i++){
+    const spoke=Math.floor(rnd()*spokes);
+    const a=(spoke/spokes)*Math.PI*2;
+    const t=rnd();
+    const r=t*R*.94;
+    const f=1+(rnd()-.5)*cfg.fuzz*.15;
+    out.push(pt(Math.cos(a)*r*f, (rnd()-.5)*R*.05, Math.sin(a)*r*f, t));
+  }
+  // espiral concéntrica
+  for(let i=0;i<spiralN;i++){
+    const ring=Math.floor(rnd()*spiralRings)+1;
+    const r=(ring/spiralRings)*R*.92;
+    const a=rnd()*Math.PI*2;
+    const f=1+(rnd()-.5)*cfg.fuzz*.2;
+    out.push(pt(Math.cos(a)*r*f, (rnd()-.5)*R*.05, Math.sin(a)*r*f, ring/spiralRings));
+  }
+  return out;
+}
+
+// Helix doble: dos hélices entrelazadas tipo ADN decorativo más abierto
+function genHelix(n,R) {
+  const out=[];
+  const strands=2, turns=3;
+  const perStrand=Math.floor(n*.35);
+  const bridgeN=n-perStrand*strands;
+  for(let s=0;s<strands;s++){
+    const offset=(s/strands)*Math.PI*2;
+    for(let i=0;i<perStrand;i++){
+      const t=i/perStrand;
+      const a=t*Math.PI*2*turns+offset;
+      const r=R*.72*(1+(rnd()-.5)*cfg.fuzz*.2);
+      const y=(t-.5)*R*1.8;
+      out.push(pt(Math.cos(a)*r, y, Math.sin(a)*r, t));
     }
-  });
+  }
+  // puentes entre hélices
+  const perBridge=Math.floor(bridgeN/(turns*4));
+  for(let b=0;b<turns*4;b++){
+    const t=b/(turns*4);
+    const a=t*Math.PI*2*turns;
+    const y=(t-.5)*R*1.8;
+    for(let k=0;k<perBridge;k++){
+      const lerp=rnd();
+      const x=Math.cos(a)*R*.72*(1-lerp)+Math.cos(a+Math.PI)*R*.72*lerp;
+      const z=Math.sin(a)*R*.72*(1-lerp)+Math.sin(a+Math.PI)*R*.72*lerp;
+      out.push(pt(x+(rnd()-.5)*cfg.fuzz*R*.06, y+(rnd()-.5)*R*.04, z+(rnd()-.5)*cfg.fuzz*R*.06, t));
+    }
+  }
+  return out.slice(0,n);
+}
 
-  return out.slice(0, n);
+// Corona: aro base abajo, puntas hacia arriba (Y neg)
+function genCrown(n,R) {
+  const out=[];
+  const points=8;
+  const ringN=Math.floor(n*.5), spikesN=n-ringN;
+  // aro base (Y positivo = abajo)
+  for(let i=0;i<ringN;i++){
+    const a=rnd()*Math.PI*2;
+    const rr=R*.72*(1+(rnd()-.5)*cfg.fuzz*.15);
+    const y=R*.15+(rnd()-.5)*R*.18;
+    out.push(pt(Math.cos(a)*rr, y, Math.sin(a)*rr, Math.abs(Math.sin(a))*.5+.25));
+  }
+  // puntas hacia arriba (Y negativo)
+  const perSpike=Math.floor(spikesN/points);
+  for(let p=0;p<points;p++){
+    const a=(p/points)*Math.PI*2;
+    for(let i=0;i<perSpike;i++){
+      const t=rnd();
+      const r=R*.72*(1-t*.22*(1+(rnd()-.5)*cfg.fuzz*.3));
+      const y=R*.06 - t*R*.72; // de Y positivo (base) a Y negativo (punta)
+      const da=(rnd()-.5)*(Math.PI/points)*.5;
+      out.push(pt(Math.cos(a+da)*r, y, Math.sin(a+da)*r, t*.7+p/points*.3));
+    }
+  }
+  return out.slice(0,n);
 }
 
 // ── BUILD ──
@@ -797,15 +982,14 @@ function build() {
     wave:genWave, drop:genDrop, bubbles:genBubbles, snail:genSnail,
     blackhole:genBlackhole, comet:genComet, planet:genPlanet, supernova:genSupernova,
     klein:genKlein, lemniscate:genLemniscate, rose:genRose3D, trefoil:genTrefoil,
-    atom:genAtom, neural:genNeural, tornado:genTornado
+    atom:genAtom, neural:genNeural, tornado:genTornado,
+    burger:genBurger, pizza:genPizza, donut:genDonut,
+    icecream:genIcecream, apple:genApple, mushroom:genMushroom,
+    leaf:genLeaf, flame:genFlame, curtain:genCurtain, mandala:genMandala,
+    feather:genFeather, crystal:genCrystal, petal:genPetal,
+    cobweb:genCobweb, helix:genHelix, crown:genCrown
   };
-  // Constellation models
-  const constellationKeys = Object.keys(CONSTELLATIONS);
-  if (constellationKeys.includes(cfg.model)) {
-    pts = buildConstellation(cfg.model, n, R);
-  } else {
-    pts = (gen[cfg.model]||genNebula)(n, R);
-  }
+  pts = (gen[cfg.model]||genNebula)(n, R);
 }
 
 // ── 3D ──
@@ -864,17 +1048,8 @@ function init(){setupCanvas();build();if(raf)cancelAnimationFrame(raf);draw();ap
 $('modelSeg').addEventListener('click',e=>{
   const btn=e.target.closest('button'); if(!btn) return;
   cfg.model=btn.dataset.model;
-  document.querySelectorAll('#modelSeg button,#zodSeg button,#iconSeg button').forEach(b=>b.classList.toggle('active',b===btn));
+  document.querySelectorAll('#modelSeg button').forEach(b=>b.classList.toggle('active',b===btn));
   build();
-});
-
-['zodSeg','iconSeg'].forEach(segId=>{
-  $(segId).addEventListener('click',e=>{
-    const btn=e.target.closest('button'); if(!btn) return;
-    cfg.model=btn.dataset.model;
-    document.querySelectorAll('#modelSeg button,#zodSeg button,#iconSeg button').forEach(b=>b.classList.toggle('active',b===btn));
-    build();
-  });
 });
 
 $('swatches').addEventListener('click',e=>{
